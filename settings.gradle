@@ -1,0 +1,18 @@
+pluginManagement {
+    repositories {
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+	    maven { 
+			name = 'Shedaniel'
+			url = 'https://maven.shedaniel.me/'
+		}
+	    maven { 
+			name = 'terraformersmc'
+			url = 'https://maven.terraformersmc.com/releases/'
+		}
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}

@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.jn233.chatenc_mc.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "EncMixin",
+    "DecMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
