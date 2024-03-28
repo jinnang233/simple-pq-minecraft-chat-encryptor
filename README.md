@@ -10,7 +10,15 @@ A chat encryption mod for Minecraft that uses post-quantum KEM CMCE(Classic Mcel
 
 # Usage
 
-## Encrypt a message without signing
+## Key Pair
+
+Key Pair is automatically generated when ChatHud update. 
+
+After you exchange your public keys, you can send an encrypted message to someone with or without signing.
+
+Public key files is under directory "keys" and end with `.pk` or `.spk`.
+
+## Send an encrypted message to someone without signing
 
 ```
 etell <Playername> <Message>
@@ -22,7 +30,7 @@ For example:
 etell Player166 Hello
 ```
 
-## Encrypt a message with signing
+## Send an encrypted message to someone with signing
 
 ```
 estell <Playername> <Message>
@@ -39,9 +47,9 @@ estell Player166 Hello
 # Warnings
 
 1. I'm not good at coding. The mod may contain bugs. Use it at your own risk.
-2. Server may consider these encrypted message as spam. 
-3. Post-quantum algorithms used in these project is not formally aduited by cryptographiers. Messages may be cracked in the future.
-4. Due to message size problem, the project does not use hybrid encryption. 
+2. Server may consider these encrypted messages as spam. 
+3. Post-quantum algorithms used in these project is **not** formally aduited by cryptographiers. Messages may be cracked in the future.
+4. Due to message size problem, the project does **not** use **hybrid** encryption. 
 
 
 
