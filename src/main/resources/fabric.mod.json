@@ -13,7 +13,7 @@
     "sources": ""
   },
 
-  "license": "CC0-1.0",
+  "license": "MIT",
   "icon": "assets/jn233_mcchat_enc/icon.png",
 
   "environment": "*",
