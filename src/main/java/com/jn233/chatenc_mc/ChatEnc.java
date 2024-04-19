@@ -27,13 +27,11 @@ import net.minecraft.text.Text;
 public class ChatEnc implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger("JNENC");
 	private PqEnc encryptor;
+	private static com.jn233.chatenc_mc.ChatHandler chat_handler = new com.jn233.chatenc_mc.ChatHandler();
 	public static EncryptorConfigurationScreen configurationScreen = new EncryptorConfigurationScreen();
 	
 	@Override
 	public void onInitialize() {
-		// Message handler listener initialization
-		// EncReceiverHandler.init();
-		// LOGGER.info("Registering command events");
 		
 		KeyBinding keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 				"key.jn233_mcchat_enc.settings",
@@ -89,10 +87,10 @@ public class ChatEnc implements ModInitializer {
 					return 1;
 				}))))));
 		
-		ClientReceiveMessageEvents.CHAT.register(
+		ClientReceiveMessageEvents.ALLOW_CHAT.register(
 				(message, signedMessage, sender, params, receptionTimestamp)->{
-					//MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.literal(sender.getName()));
-					return;
+					return chat_handler.chatProcessWithSession(message.getString(), sender.getName());
+					
 				}
 				);
 	}

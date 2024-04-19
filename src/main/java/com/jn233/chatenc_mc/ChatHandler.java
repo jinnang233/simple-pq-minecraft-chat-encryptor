@@ -39,11 +39,8 @@ public class ChatHandler {
 	
 
 	private HashMap sessionMap = new HashMap();
-	
 
 	private static final Logger LOGGER = LoggerFactory.getLogger("JNChatHandler");
-	
-	
 	
 
 	public void printFailure() {
@@ -59,52 +56,43 @@ public class ChatHandler {
 		String sessionId = sessionMatcher.group(1); 
 		String content = sessionMatcher.group(2);	
 		
-
 		sessionMap.put(sessionId, sessionMap.containsKey(sessionId)?sessionMap.get(sessionId)+content:content);
 		
 	}
-	public void sessionEndProcess(Matcher sessionEndMatcher,Matcher playerMessageMatcher) {
+	public void sessionEndProcess(Matcher sessionEndMatcher,String playerName) {
 		if(sessionEndMatcher.groupCount()!=1) {return;}
 		LOGGER.info("Session end match!");
 		
-
 		String sessionId = sessionEndMatcher.group(1);
-		String playername = playerMessageMatcher.group(1);
 		
 		if(!sessionMap.containsKey(sessionId)) return;
 		String content = (String) sessionMap.get(sessionId);
-		chatProcess(content,playername); 
+		chatProcess(content,playerName); 
 
 		// Delete processed session
 		sessionMap.remove(sessionId);
 	}
-	public void chatProcessWithSession(String message,CallbackInfo info) {
+	public boolean chatProcessWithSession(String message,String playerName) {
 		// TODO Try to match the message using regular expression, if the match is successful process the encrypted message
 
 		MinecraftClient instance = MinecraftClient.getInstance();		
 		
-		String content_pattern = ChatEnc.configurationScreen.chat_regex;
-		Pattern content_patterner = Pattern.compile(content_pattern);
-
-		Matcher player_message_matcher = content_patterner.matcher(message);
 		Matcher session_end_pattern_matcher = session_end_pattern_patterner.matcher(message);
 		
-
-		if(!player_message_matcher.find()) return;
-		
-		Matcher session_pattern_matcher = session_pattern_patterner.matcher(player_message_matcher.group(2).strip());
+		Matcher session_pattern_matcher = session_pattern_patterner.matcher(message);
 		
 		// LOGGER.info("player:" + player_message_matcher.group(2).strip());
 		
 		if(session_pattern_matcher.find()) { 
 			sessionProcess(session_pattern_matcher);
 			//No echo
-			if(!ChatEnc.configurationScreen.encrypted_echo)info.cancel(); 
+			if(!ChatEnc.configurationScreen.encrypted_echo)return false;
 		}else if(session_end_pattern_matcher.find()) { 
-			sessionEndProcess(session_end_pattern_matcher,player_message_matcher);
-			if(!ChatEnc.configurationScreen.encrypted_echo)info.cancel(); 
+			sessionEndProcess(session_end_pattern_matcher,playerName);
+			if(!ChatEnc.configurationScreen.encrypted_echo)return false;
 		
 		}
+		return true;
 	}
 
 	public void chatProcess(String message) {
