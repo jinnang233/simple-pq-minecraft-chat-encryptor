@@ -21,25 +21,25 @@ Public key files is under directory "keys" and end with `.pk` or `.spk`.
 ## Send an encrypted message to someone without signing
 
 ```
-etell <Playername> <Message>
+/enc tell <Playername> <Message>
 ```
 
 For example:
 
 ```
-etell Player166 Hello
+/enc tell Player166 Hello
 ```
 
 ## Send an encrypted message to someone with signing
 
 ```
-estell <Playername> <Message>
+/enc stell <Playername> <Message>
 ```
 
 For example:
 
 ```
-estell Player166 Hello
+/enc stell Player166 Hello
 ```
 
 
