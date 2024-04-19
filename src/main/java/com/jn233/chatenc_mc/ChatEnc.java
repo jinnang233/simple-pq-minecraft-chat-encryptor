@@ -36,7 +36,6 @@ public class ChatEnc implements ModInitializer {
 	
 	@Override
 	public void onInitialize() {
-		
 		KeyBinding keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 				"key.jn233_mcchat_enc.settings",
 				InputUtil.Type.KEYSYM,

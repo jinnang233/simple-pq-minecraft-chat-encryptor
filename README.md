@@ -18,31 +18,39 @@ After you exchange your public keys, you can send an encrypted message to someon
 
 Public key files is under directory "keys" and end with `.pk` or `.spk`.
 
+
+
+## Initialize before sending a message
+
+```
+/einit
+```
+
+
+
 ## Send an encrypted message to someone without signing
 
 ```
-etell <Playername> <Message>
+/enc tell <Playername> <Message>
 ```
 
 For example:
 
 ```
-etell Player166 Hello
+/enc tell Player166 Hello
 ```
 
 ## Send an encrypted message to someone with signing
 
 ```
-estell <Playername> <Message>
+/enc stell <Playername> <Message>
 ```
 
 For example:
 
 ```
-estell Player166 Hello
+/enc stell Player166 Hello
 ```
-
-
 
 # Warnings
 
@@ -51,11 +59,10 @@ estell Player166 Hello
 3. Post-quantum algorithms used in these project is **not** formally aduited by cryptographiers. Messages may be cracked in the future.
 4. Due to message size problem, the project does **not** use **hybrid** encryption. 
 
-
-
 # Credits
 
 This project is impossible without these projects:
+
 - [BouncyCastle](https://github.com/bcgit/bc-csharp)
 - [Fabric](https://fabricmc.net/)
 - [Fabric API](https://fabricmc.net/)
@@ -64,4 +71,3 @@ This project is impossible without these projects:
 - [fabric_key_binding_api](https://fabricmc.net/)
 
 Thanks to all these projects.
-
