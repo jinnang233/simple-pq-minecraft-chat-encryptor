@@ -38,7 +38,7 @@ public class ChatHandler {
 	private Pattern session_pattern_patterner = Pattern.compile(session_pattern);
 	
 
-	private HashMap sessionMap = new HashMap();
+	private HashMap<String,String> sessionMap = new HashMap<String,String>();
 
 	private static final Logger LOGGER = LoggerFactory.getLogger("JNChatHandler");
 	
