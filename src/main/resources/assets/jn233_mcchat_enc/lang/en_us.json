@@ -23,5 +23,6 @@
 	"option.jn233_mcchat_enc.chat_regex":"Chat regex",
 	"option.jn233_mcchat_enc.pk_list":"Public key list (cannot be modified)",
 	"option.jn233_mcchat_enc.kem_alg":"KEM algorithm (cannot be modified)",
-	"option.jn233_mcchat_enc.sig_alg":"Signature algorithm (cannot be modified)"
+	"option.jn233_mcchat_enc.sig_alg":"Signature algorithm (cannot be modified)",
+	"option.jn233_mcchat_enc.silly_match":"Silly match"
 }

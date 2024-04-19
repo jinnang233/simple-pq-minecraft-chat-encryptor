@@ -4,5 +4,6 @@ public class Configuration {
 	public int message_delay;
 	public int cut_limit;
 	public boolean encrypted_echo;
+	public boolean silly_match;
 	public String chat_regex; 
 }

@@ -23,5 +23,6 @@
 	"option.jn233_mcchat_enc.chat_regex":"聊天正则表达式",
 	"option.jn233_mcchat_enc.pk_list":"公钥列表（无法修改）",
 	"option.jn233_mcchat_enc.kem_alg":"KEM 算法（无法修改）",
-	"option.jn233_mcchat_enc.sig_alg":"签名算法（无法修改）"
+	"option.jn233_mcchat_enc.sig_alg":"签名算法（无法修改）",
+	"option.jn233_mcchat_enc.silly_match":"呆式匹配"
 }

@@ -34,7 +34,9 @@ public class EncryptorConfigurationScreen  {
 	public int message_delay = 1500;
 	public int cut_limit = 200;
 	public boolean encrypted_echo = false;
-	
+	public boolean silly_match = false;
+	public final static String chat_regex_default = "\\<(.*)\\>(.*)";
+	public String chat_regex = chat_regex_default;
 	
 	public String configFileName = "config.yaml";
 	
@@ -51,8 +53,9 @@ public class EncryptorConfigurationScreen  {
 		Configuration conf = new Configuration();
 		conf.message_delay=this.message_delay;
 		conf.cut_limit=this.cut_limit;
+		conf.silly_match=this.silly_match;
 		conf.encrypted_echo=this.encrypted_echo;
-		
+		conf.chat_regex=this.chat_regex;
 		MinecraftClient instance = MinecraftClient.getInstance();
 		
 		File configFile = PKStorageGlass.getFileObject(instance, configFileName);
@@ -83,6 +86,8 @@ public class EncryptorConfigurationScreen  {
 				this.message_delay=conf.message_delay;
 				this.cut_limit=conf.cut_limit;
 				this.encrypted_echo=conf.encrypted_echo;
+				this.silly_match=conf.silly_match;
+				this.chat_regex=conf.chat_regex;
 			} catch (IOException e) {
 				ChatEnc.LOGGER.error(e.getMessage());
 			}
@@ -109,7 +114,14 @@ public class EncryptorConfigurationScreen  {
 				.setDefaultValue(false)
 				.setSaveConsumer(newValue -> encrypted_echo = newValue)
 				.build();
-
+		AbstractConfigListEntry sillyMatchField = entryBuilder.startBooleanToggle(Text.translatable("option.jn233_mcchat_enc.silly_match"), silly_match)
+				.setDefaultValue(false)
+				.setSaveConsumer(newValue -> silly_match = newValue)
+				.build();
+		AbstractConfigListEntry chatPatternField = entryBuilder.startStrField(Text.translatable("option.jn233_mcchat_enc.chat_regex"), chat_regex)
+				.setDefaultValue(chat_regex_default)
+				.setSaveConsumer(newValue -> chat_regex = newValue)
+				.build();
 		AbstractConfigListEntry kemAlgShowField = entryBuilder.startStrField(Text.translatable("option.jn233_mcchat_enc.kem_alg"), PQParser.param.getName())
 				.build();
 		AbstractConfigListEntry sigAlgShowField = entryBuilder.startStrField(Text.translatable("option.jn233_mcchat_enc.sig_alg"), PQParser.sig_param)
@@ -125,6 +137,8 @@ public class EncryptorConfigurationScreen  {
 		general.addEntry(delayField);
 		general.addEntry(cutLimitField);
 		general.addEntry(encryptedEchoField);
+		general.addEntry(chatPatternField);
+		general.addEntry(sillyMatchField);
 		general.addEntry(kemAlgShowField);
 		general.addEntry(sigAlgShowField);
 		general.addEntry(pkField);

@@ -1,5 +1,8 @@
 package com.jn233.chatenc_mc;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +30,7 @@ import net.minecraft.text.Text;
 public class ChatEnc implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger("JNENC");
 	private PqEnc encryptor;
+	private boolean keypair_initialized = false;
 	private static com.jn233.chatenc_mc.ChatHandler chat_handler = new com.jn233.chatenc_mc.ChatHandler();
 	public static EncryptorConfigurationScreen configurationScreen = new EncryptorConfigurationScreen();
 	
@@ -55,6 +59,7 @@ public class ChatEnc implements ModInitializer {
 							try {
 								MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.ensure_keypair"));
 								(new PqEnc()).makesure();
+								keypair_initialized=true;
 								MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.keypair_generated"));
 							} catch (Exception e) {
 								ChatEnc.LOGGER.error(e.getMessage());
@@ -83,14 +88,27 @@ public class ChatEnc implements ModInitializer {
 				.executes(context -> {
 					final String playername = StringArgumentType.getString(context,"playername");
 					final String message = StringArgumentType.getString(context,"message");
-					ChatHandler.sendEncrypted(encryptor, message, playername, true);
+					if(keypair_initialized) ChatHandler.sendEncrypted(encryptor, message, playername, true);
 					return 1;
 				}))))));
 		
 		ClientReceiveMessageEvents.ALLOW_CHAT.register(
 				(message, signedMessage, sender, params, receptionTimestamp)->{
-					return chat_handler.chatProcessWithSession(message.getString(), sender.getName());
+					if(keypair_initialized && (!configurationScreen.silly_match)) return chat_handler.chatProcessWithSession(message.getString(), sender.getName());
+					return true;
 					
+				}
+				);
+		ClientReceiveMessageEvents.ALLOW_GAME.register(
+				(message,overlay)->{
+					if(keypair_initialized && configurationScreen.silly_match) {
+						String content_pattern = ChatEnc.configurationScreen.chat_regex;
+						Pattern content_patterner = Pattern.compile(content_pattern);
+						Matcher player_message_matcher = content_patterner.matcher(message.getString());
+						if(!player_message_matcher.find()) return true;
+						return chat_handler.chatProcessWithSession(player_message_matcher.group(2), player_message_matcher.group(1));
+					}
+					return true;
 				}
 				);
 	}
