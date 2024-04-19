@@ -1,11 +1,9 @@
 plugins {
-	id 'fabric-loom' version '0.12-SNAPSHOT'
+	id 'fabric-loom' version '1.6-SNAPSHOT'
 	id 'maven-publish'
-	id 'java'
-	id 'eclipse'
+
 }
-apply plugin: 'groovy'
-apply plugin: 'java'
+
 
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
@@ -20,15 +18,12 @@ repositories {
 	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
-	flatDir{ dirs 'libs' }
 	maven { url "https://maven.shedaniel.me/" }
 	maven { url "https://maven.terraformersmc.com/releases/" }
 	mavenCentral()
 }
 
 dependencies {
-	implementation gradleApi()
-	implementation localGroovy()
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
@@ -38,10 +33,7 @@ dependencies {
 	//include "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	//include("net.fabricmc.fabric-api:fabric-key-binding-api-v1:${project.fabric_key_binding_api_version}")
-	// modImplementation "org.openquantumsafe.*:oqs:4.0.0"
-	//implementation files("libs/oqs-4.0.0.jar")
-	//implementation ("org.openquantumsafe:utility:4.0.0")
-	//compile files("libs/oqs-4.0.0.jar")
+
 	include("org.bouncycastle:bcprov-jdk18on:${project.bc_config_version}")
 	modImplementation("org.bouncycastle:bcprov-jdk18on:${project.bc_config_version}")
 	
@@ -50,12 +42,6 @@ dependencies {
 	modImplementation("org.yaml:snakeyaml:${project.snakeyaml_version}")
 	
 	
-	
-	//include("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}")
-	//modImplementation("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}")
-//	include("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}") {
-//		exclude(group: "net.fabricmc.fabric-api")
-//	}
 	modApi("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}") {
 		exclude(group: "net.fabricmc.fabric-api")
 	}
@@ -105,4 +91,3 @@ publishing {
 		// retrieving dependencies.
 	}
 }
-

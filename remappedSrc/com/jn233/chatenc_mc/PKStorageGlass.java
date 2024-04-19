@@ -30,7 +30,6 @@ public class PKStorageGlass {
 	
 	// store public keys
 	public static boolean makeDir(MinecraftClient instance) {
-		
 		File dir = instance.runDirectory;
 		File pkdir = new File(dir.getAbsolutePath(),pkDirectoryName);
 		byte[] pubkey = {};
@@ -158,7 +157,7 @@ public class PKStorageGlass {
 			postfix=".sk";
 		}
 		
-		File skfile = new File(pkdir.getAbsolutePath(),instance.player.getName().getString()+postfix);
+		File skfile = new File(pkdir.getAbsolutePath(),instance.player.getName().toString()+postfix);
 		boolean flag=false;
 		if(pkdir.exists()) {
 			if(!skfile.exists())
@@ -194,7 +193,7 @@ public class PKStorageGlass {
 			postfix=".sk";
 		}
 		
-		File skfile = new File(pkdir.getAbsolutePath(),instance.player.getName().getString()+postfix);
+		File skfile = new File(pkdir.getAbsolutePath(),instance.player.getName().toString()+postfix);
 		if(pkdir.exists() && skfile.exists() && skfile.canRead()) {
 			try {
 				byte[] keyData = Files.readAllBytes(Paths.get(skfile.getAbsolutePath()));

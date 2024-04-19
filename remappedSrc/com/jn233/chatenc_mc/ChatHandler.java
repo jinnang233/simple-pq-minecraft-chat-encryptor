@@ -9,7 +9,7 @@ import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
 import net.minecraft.text.Text;
 import net.minecraft.util.Pair;
 
-import java.io.IOException; 
+import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -142,17 +142,17 @@ public class ChatHandler {
 		// Determine the length of the signature and try to verify the signature if it is not empty
 		if(datapack.signature.length!=0) {
 			byte[] sig_pk = PKStorageGlass.get(instance, sender, true);
-			sigdata = encryptor.decrypt_and_verify(message, sk, instance.player.getName().getString(), sig_pk);
+			sigdata = encryptor.decrypt_and_verify(message, sk, instance.player.getName().toString(), sig_pk);
 			chat=sigdata.data;
 		}else {
-			chat = encryptor.simple_KEM_decrypt(message, sk, instance.player.getName().getString());
+			chat = encryptor.simple_KEM_decrypt(message, sk, instance.player.getName().toString());
 		}
 		
 		
 		// Try to decrypt using encryptor
 		
 
-		if(chat==null && (!instance.player.getName().getString().equals(sender))) {printFailure();return;}
+		if(chat==null && (!instance.player.getName().toString().equals(sender))) {printFailure();return;}
 		
 		String result=new String(chat);
 		// Show in game
@@ -212,14 +212,14 @@ public class ChatHandler {
 		cutSend(message,length,0);
 	}
 	
-	public static boolean sendEncrypted(PqEnc encryptor,String message, String playerName,boolean withSignature) {
+	public static boolean sendEncrypted(PqEnc encryptor,String message, String playerName,boolean withSignature, CallbackInfo ci) {
 			// TODO Encrypt the message and send it to the specified person
 			boolean playerFound = false;
 			MinecraftClient instance = MinecraftClient.getInstance();
 			instance.inGameHud.getChatHud().addToMessageHistory(message);
 			if(!PqEnc.privLoaded) { 
 				instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.private_key_not_available_yet"));
-				
+				ci.cancel();
 				return false;
 				}
 			
@@ -256,7 +256,7 @@ public class ChatHandler {
 				(new Thread(cutSend)).start();
 			}
 
-			
+			ci.cancel();
 			return playerFound;
 		
 	}

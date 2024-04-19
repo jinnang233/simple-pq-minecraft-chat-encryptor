@@ -74,10 +74,10 @@ public class PqEnc {
 			byte[] privkey = PQParser.getPrivKey(keypair);
 			
 			PKStorageGlass.store(instance, privkey);
-			PKStorageGlass.put(instance,instance.player.getName().getString(),pubkey);
+			PKStorageGlass.put(instance,instance.player.getName().toString(),pubkey);
 			
 			PKStorageGlass.store(instance, sig_privkey, true);
-			PKStorageGlass.putSig(instance, instance.player.getName().getString(),sig_pubkey);
+			PKStorageGlass.putSig(instance, instance.player.getName().toString(),sig_pubkey);
 		}
 		PqEnc.privLoaded=true;
 	}
@@ -97,7 +97,7 @@ public class PqEnc {
 		datapack.data=ciphertext;
 		datapack.ciphertext=encapsulation;
 		datapack.playerName=playerName;
-		datapack.sender=instance.player.getName().getString();
+		datapack.sender=instance.player.getName().toString();
 		return datapack;
 	}
 	

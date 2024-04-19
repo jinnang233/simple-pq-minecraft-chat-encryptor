@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.gradle.internal.serialize.InputStreamBackedDecoder;
 import org.yaml.snakeyaml.Yaml;
 
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;

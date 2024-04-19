@@ -64,7 +64,7 @@ public class EncMixin{
 		if(estell_found||m_found) {
 			String playername = estell_found?estell_m.group(1):m.group(1);
 			message = estell_found?estell_m.group(2):m.group(2);
-			//ChatHandler.sendEncrypted(encryptor, message, playername, estell_found, ci);
+			ChatHandler.sendEncrypted(encryptor, message, playername, estell_found, ci);
 		}
 		
 		
