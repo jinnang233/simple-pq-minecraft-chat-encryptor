@@ -95,6 +95,30 @@ public class ChatEnc implements ModInitializer {
 					return 1;
 				}))))));
 		
+		ClientCommandRegistrationCallback.EVENT.register(
+				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal("enc")
+				.then(ClientCommandManager.literal("exchange")
+				.then(ClientCommandManager.argument("receiver", ReceiverArgumentType.receiver())
+				.executes(context -> {
+					final String receiver = ReceiverArgumentType.getReceiver(context,"receiver");
+					ChatHandler.sendEncrypted(encryptor, "", receiver, false,2);
+					return 1;
+				})))));
+		ClientCommandRegistrationCallback.EVENT.register(
+				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal("enc")
+				.then(ClientCommandManager.literal("etell")
+				.then(ClientCommandManager.argument("receiver", ReceiverArgumentType.receiver())
+				.then(ClientCommandManager.argument("message",StringArgumentType.string())
+				.executes(context -> {
+					final String receiver = ReceiverArgumentType.getReceiver(context,"receiver");
+					final String message = StringArgumentType.getString(context,"message");
+					if(keypair_initialized) ChatHandler.sendEncrypted(encryptor, message, receiver, true,3);
+					return 1;
+				}))))));
+		
+		
+		
+		
 		ClientReceiveMessageEvents.ALLOW_CHAT.register(
 				(message, signedMessage, sender, params, receptionTimestamp)->{
 					if(keypair_initialized && (!configurationScreen.silly_match)) return chat_handler.chatProcessWithSession(message.getString(), sender.getName());

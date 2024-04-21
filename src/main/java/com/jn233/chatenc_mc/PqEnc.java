@@ -16,9 +16,14 @@ import java.util.Base64;
 import java.security.SignatureException;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.SecretWithEncapsulation;
+import org.bouncycastle.util.Bytes;
+
+import java.util.HashMap;
+
 
 public class PqEnc {
-	
+	public static HashMap<String,encryptionDataPack> ss_map = new HashMap<String,encryptionDataPack>();
+	public static HashMap<String,encryptionDataPack> ss_map_recv = new HashMap<String,encryptionDataPack>();
 	public static boolean privLoaded=false;
 	public void makesure() {
 		
@@ -42,6 +47,75 @@ public class PqEnc {
 		PqEnc.privLoaded=true;
 	}
 
+	public String encaps(byte[] pk,String playerName) throws IOException {
+		MinecraftClient instance = MinecraftClient.getInstance();
+		PQParser parser = new PQParser();
+		SecretWithEncapsulation enc = parser.encaps(pk);
+		byte[] encapsulation = enc.getEncapsulation();
+		byte[] ss = enc.getSecret();
+		
+		encryptionDataPack ss_datapack = new encryptionDataPack();
+		ss_datapack.type=100;
+		ss_datapack.data=ss;
+		
+		ss_map.put(playerName, ss_datapack);
+		
+		encryptionDataPack datapack = new encryptionDataPack();
+		datapack.type=2;
+		datapack.ciphertext=encapsulation;
+		datapack.playerName=playerName;
+		datapack.sender=instance.player.getName().getString();
+		byte[] result = PQParser.pack(datapack);
+		return Base64.getEncoder().encodeToString(result);
+		
+	}
+	public void decaps(String cipher,byte[] sk,String playerName,String sender) {
+		PQParser parser = new PQParser();
+		encryptionDataPack datapack = PQParser.unpack(Base64.getDecoder().decode(cipher));
+		if(datapack == null) {ChatEnc.LOGGER.info("Datapack is null!"); return;};
+		
+		if(datapack.type!=2 || (!datapack.playerName.equalsIgnoreCase(playerName))) {
+			ChatEnc.LOGGER.info("Wrong type or playername!");
+			return;
+		}
+		
+		byte[] ss = parser.decaps(datapack.ciphertext, sk);
+		
+		encryptionDataPack ss_datapack = new encryptionDataPack();
+		ss_datapack.type=100;
+		ss_datapack.data=ss;
+		
+		ss_map_recv.put(sender, ss_datapack);
+	}
+	public String ss_encrypt(byte[] data,byte[] pk,String playerName) throws IOException {
+		MinecraftClient instance = MinecraftClient.getInstance();
+		encryptionDataPack dataPack = new encryptionDataPack();
+		encryptionDataPack ss_datapack = ss_map.get(playerName);
+		if(ss_datapack==null) {return null;}
+		
+		byte[] ciphertext = encrypt(data,ss_datapack.data);
+		dataPack.type=3;
+		dataPack.data=ciphertext;
+		dataPack.playerName=playerName;
+		dataPack.sender=instance.player.getName().getString();
+		byte[] result = PQParser.pack(dataPack);
+		return Base64.getEncoder().encodeToString(result);
+	
+	}
+	public byte[] ss_decrypt(String cipher,byte[] sk,String playerName,String sender) {
+		encryptionDataPack datapack = PQParser.unpack(Base64.getDecoder().decode(cipher));
+		if(datapack == null) {ChatEnc.LOGGER.info("Datapack is null!"); return null;};
+		
+		if(datapack.type!=3 || (!datapack.playerName.equalsIgnoreCase(playerName))) {
+			ChatEnc.LOGGER.info("Wrong type or playername!");
+			return null;
+		}
+		encryptionDataPack ss_datapack = ss_map_recv.get(sender);
+		if(ss_datapack==null) {return null;}
+		byte[] ss = ss_datapack.data;
+		byte[] data = decrypt(datapack.data,ss);
+		return data;
+	}
 	private encryptionDataPack kem_encrypt(byte[] data,byte[] pk,String playerName) throws IOException {
 		MinecraftClient instance = MinecraftClient.getInstance();
 		PQParser parser = new PQParser();

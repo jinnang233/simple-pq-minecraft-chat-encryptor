@@ -97,7 +97,8 @@ public class ChatHandler {
 		byte[] data;
 		byte[] chat;
 		SigData sigdata = null;
-		
+		String result="";
+		String postfix="general.jn233_mcchat_enc.nosignature";
 		
 		// Try to Base64 decode the data, exit the method if decryption fails
 		try {
@@ -117,6 +118,7 @@ public class ChatHandler {
 		// Try to decrypt the packet
 		encryptionDataPack datapack = PQParser.unpack(Base64.getDecoder().decode(message));
 		
+		
 		switch(datapack.type) {
 			case 1:
 				// Determine the length of the signature and try to verify the signature if it is not empty
@@ -134,9 +136,9 @@ public class ChatHandler {
 
 				if(chat==null && (!instance.player.getName().getString().equals(sender))) {printFailure();return;}
 				
-				String result=new String(chat);
+				result=new String(chat);
 				// Show in game
-				String postfix="general.jn233_mcchat_enc.nosignature";
+				postfix="general.jn233_mcchat_enc.nosignature";
 				if(sigdata!=null) {
 					if(sigdata.is_valid) {
 						postfix="general.jn233_mcchat_enc.valid";
@@ -145,22 +147,33 @@ public class ChatHandler {
 					}
 				}
 				
-				// Output message
-				Text output_text = 
-						Text.literal("[")
-						.append(Text.literal(sender))
-						.append(Text.literal("]"))
-						.append(Text.literal("["))
-						.append(Text.translatable(postfix))
-						.append(Text.literal("]"))
-						.append(Text.translatable("general.jn233_mcchat_enc.encrypt_tip"))
-						.append(Text.literal(":" + result));
-						instance.inGameHud.getChatHud().addMessage(output_text);
+				
 						
+				break;
+			case 2:
+				encryptor.decaps(message,sk,instance.player.getName().getString(), sender);
+				break;
+				
+			case 3:
+				chat = encryptor.ss_decrypt(message,sk,instance.player.getName().getString(), sender);
+				result = new String(chat);
+				postfix="general.jn233_mcchat_enc.nosignature";
 				break;
 		}
 		
-		
+		if(datapack.type==1 || datapack.type == 3) {
+			// Output message
+			Text output_text = 
+					Text.literal("[")
+					.append(Text.literal(sender))
+					.append(Text.literal("]"))
+					.append(Text.literal("["))
+					.append(Text.translatable(postfix))
+					.append(Text.literal("]"))
+					.append(Text.translatable("general.jn233_mcchat_enc.encrypt_tip"))
+					.append(Text.literal(":" + result));
+					instance.inGameHud.getChatHud().addMessage(output_text);
+		}
 	}
 	
 	public static void cutSend(String message,int length, int message_delay) {
@@ -211,8 +224,11 @@ public class ChatHandler {
 	public static void cutSend(String message,int length){
 		cutSend(message,length,0);
 	}
-	
 	public static boolean sendEncrypted(PqEnc encryptor,String message, String playerName,boolean withSignature) {
+		return sendEncrypted(encryptor,message,playerName,withSignature,1);
+	}
+	
+	public static boolean sendEncrypted(PqEnc encryptor,String message, String playerName,boolean withSignature,int type) {
 			// TODO Encrypt the message and send it to the specified person
 			boolean playerFound = false;
 			MinecraftClient instance = MinecraftClient.getInstance();
@@ -227,17 +243,25 @@ public class ChatHandler {
 				byte[] pk = PKStorageGlass.get(instance, playerName);
 				byte[] sig_sk = PKStorageGlass.fetch(instance, true);
 				if(pk!=null) {
-					if(withSignature) {
-						message = encryptor.encrypt_and_sign(message.getBytes(), pk, playerName, sig_sk);
-						
-					}else {
-						message = encryptor.simple_KEM_encrypt(message.getBytes(), pk, playerName);
+					switch(type) {
+					case 1:
+						if(withSignature) {
+							message = encryptor.encrypt_and_sign(message.getBytes(), pk, playerName, sig_sk);
+							
+						}else {
+							message = encryptor.simple_KEM_encrypt(message.getBytes(), pk, playerName);
+						}
+						break;
+					case 2:
+						message = encryptor.encaps(pk, playerName);
+						break;
+					case 3:
+						message = encryptor.ss_encrypt(message.getBytes(), pk, playerName);
 					}
 					playerFound = true;
-					instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.found").append(Text.literal(" "+playerName+" ")).append(Text.translatable("general.jn233_mcchat_enc.public_key")));
 				}else {
 					message="";
-					instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.notfound").append(Text.literal(" "+playerName+" ")).append(Text.translatable("general.jn233_mcchat_enc.public_key")));
+					
 				}
 				
 			} catch (IOException e) {
@@ -249,11 +273,14 @@ public class ChatHandler {
 
 			// Send on batch
 			if(playerFound) {
+				instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.found").append(Text.literal(" "+playerName+" ")).append(Text.translatable("general.jn233_mcchat_enc.public_key")));
 				CutSendImplements cutSend = new CutSendImplements();
 				cutSend.setCutLimit(ChatEnc.configurationScreen.cut_limit);
 				cutSend.setMessage(message);
 				cutSend.setDelay(ChatEnc.configurationScreen.message_delay);
 				(new Thread(cutSend)).start();
+			}else {
+				instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.notfound").append(Text.literal(" "+playerName+" ")).append(Text.translatable("general.jn233_mcchat_enc.public_key")));
 			}
 
 			
