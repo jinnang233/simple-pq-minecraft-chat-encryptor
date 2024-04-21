@@ -30,7 +30,7 @@ public class ReceiverArgumentType implements ArgumentType<String> {
 			reader.skip();
 		}
 		
-	    while (reader.canRead() && (Character.isLetterOrDigit(reader.peek()) || reader.peek() == '-' || reader.peek()== '_')) { // "peek" provides the character at the current cursor position.
+	    while (reader.canRead() && (Character.isLetterOrDigit(reader.peek()) || reader.peek() == '-' || reader.peek()== '_')) {
 	        reader.skip();
 	    }
 	    String receiver = reader.getString().substring(argBeginning, reader.getCursor());
