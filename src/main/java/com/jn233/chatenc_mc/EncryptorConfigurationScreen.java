@@ -1,13 +1,9 @@
 package com.jn233.chatenc_mc;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.yaml.snakeyaml.Yaml;
@@ -16,14 +12,8 @@ import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.EntryListWidget;
-
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.server.command.CommandManager;
 
 import net.minecraft.text.Text;
 
@@ -102,33 +92,33 @@ public class EncryptorConfigurationScreen  {
 		ConfigCategory general = builder.getOrCreateCategory(Text.translatable("category.jn233_mcchat_enc.general"));
 		ConfigEntryBuilder entryBuilder = this.builder.entryBuilder();
 		
-		AbstractConfigListEntry delayField = entryBuilder.startIntField(Text.translatable("option.jn233_mcchat_enc.message_delay"), message_delay)
+		AbstractConfigListEntry<?> delayField = entryBuilder.startIntField(Text.translatable("option.jn233_mcchat_enc.message_delay"), message_delay)
 				.setDefaultValue(1500)
 				.setSaveConsumer(newValue -> message_delay = newValue)
 				.build();
-		AbstractConfigListEntry cutLimitField = entryBuilder.startIntField(Text.translatable("option.jn233_mcchat_enc.cut_limit"), cut_limit)
+		AbstractConfigListEntry<?> cutLimitField = entryBuilder.startIntField(Text.translatable("option.jn233_mcchat_enc.cut_limit"), cut_limit)
 				.setDefaultValue(200)
 				.setSaveConsumer(newValue -> cut_limit = newValue)
 				.build();
-		AbstractConfigListEntry encryptedEchoField = entryBuilder.startBooleanToggle(Text.translatable("option.jn233_mcchat_enc.encrypted_echo"), encrypted_echo)
+		AbstractConfigListEntry<?> encryptedEchoField = entryBuilder.startBooleanToggle(Text.translatable("option.jn233_mcchat_enc.encrypted_echo"), encrypted_echo)
 				.setDefaultValue(false)
 				.setSaveConsumer(newValue -> encrypted_echo = newValue)
 				.build();
-		AbstractConfigListEntry sillyMatchField = entryBuilder.startBooleanToggle(Text.translatable("option.jn233_mcchat_enc.silly_match"), silly_match)
+		AbstractConfigListEntry<?> sillyMatchField = entryBuilder.startBooleanToggle(Text.translatable("option.jn233_mcchat_enc.silly_match"), silly_match)
 				.setDefaultValue(false)
 				.setSaveConsumer(newValue -> silly_match = newValue)
 				.build();
-		AbstractConfigListEntry chatPatternField = entryBuilder.startStrField(Text.translatable("option.jn233_mcchat_enc.chat_regex"), chat_regex)
+		AbstractConfigListEntry<?> chatPatternField = entryBuilder.startStrField(Text.translatable("option.jn233_mcchat_enc.chat_regex"), chat_regex)
 				.setDefaultValue(chat_regex_default)
 				.setSaveConsumer(newValue -> chat_regex = newValue)
 				.build();
-		AbstractConfigListEntry kemAlgShowField = entryBuilder.startStrField(Text.translatable("option.jn233_mcchat_enc.kem_alg"), PQParser.param.getName())
+		AbstractConfigListEntry<?> kemAlgShowField = entryBuilder.startStrField(Text.translatable("option.jn233_mcchat_enc.kem_alg"), PQParser.param.getName())
 				.build();
-		AbstractConfigListEntry sigAlgShowField = entryBuilder.startStrField(Text.translatable("option.jn233_mcchat_enc.sig_alg"), PQParser.sig_param)
+		AbstractConfigListEntry<?> sigAlgShowField = entryBuilder.startStrField(Text.translatable("option.jn233_mcchat_enc.sig_alg"), PQParser.sig_param)
 				.build();
 		
 		List<String> pkList = PKStorageGlass.getAllPlayerNames(instance);
-		AbstractConfigListEntry pkField = entryBuilder.startStrList(Text.translatable("option.jn233_mcchat_enc.pk_list"), pkList)
+		AbstractConfigListEntry<?> pkField = entryBuilder.startStrList(Text.translatable("option.jn233_mcchat_enc.pk_list"), pkList)
 				.setDeleteButtonEnabled(false)
 				.setInsertButtonEnabled(false)
 				.setInsertInFront(false)

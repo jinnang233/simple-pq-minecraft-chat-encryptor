@@ -7,9 +7,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 
 
-public class MessageSendingProgress implements Callable {
+public class MessageSendingProgress implements Callable<Object> {
 	private String session_id = "";
-	private String sender = "";
 	private int total = 0;
 	private int current = 0;
 	private int delay = 0;
@@ -20,7 +19,6 @@ public class MessageSendingProgress implements Callable {
 		this.current=current;
 	}
 	public void setSender(String sender) {
-		this.sender=sender;
 	}
 	public void setSessionId(String session_id) {
 		this.session_id=session_id;
@@ -36,7 +34,8 @@ public class MessageSendingProgress implements Callable {
 				.append(Text.literal("]"))
 				.append(Text.translatable("general.jn233_mcchat_enc.sending"))
 				.append(Text.literal(":" + String.format("%d/%d %d%% (%f s)",current,total,current_progress,remain_time)));
-		MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(output_text);
+		MinecraftClient instance = MinecraftClient.getInstance();
+		instance.inGameHud.getChatHud().addMessage(output_text);
 
 		return null;
 	}

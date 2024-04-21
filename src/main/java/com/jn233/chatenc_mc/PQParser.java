@@ -2,12 +2,9 @@ package com.jn233.chatenc_mc;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -16,38 +13,21 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Arrays;
-
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
-import org.bouncycastle.crypto.KeyGenerationParameters;
 import org.bouncycastle.crypto.SecretWithEncapsulation;
-import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
-import org.bouncycastle.jcajce.provider.keystore.bc.BcKeyStoreSpi.BouncyCastleStore;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.pqc.asn1.CMCEPublicKey;
 import org.bouncycastle.pqc.crypto.cmce.CMCEKEMExtractor;
 import org.bouncycastle.pqc.crypto.cmce.CMCEKEMGenerator;
 import org.bouncycastle.pqc.crypto.cmce.CMCEKeyGenerationParameters;
 import org.bouncycastle.pqc.crypto.cmce.CMCEKeyPairGenerator;
-import org.bouncycastle.pqc.crypto.cmce.CMCEKeyParameters;
 import org.bouncycastle.pqc.crypto.cmce.CMCEParameters;
 import org.bouncycastle.pqc.crypto.cmce.CMCEPrivateKeyParameters;
 import org.bouncycastle.pqc.crypto.cmce.CMCEPublicKeyParameters;
-import org.bouncycastle.pqc.crypto.falcon.FalconKeyGenerationParameters;
-import org.bouncycastle.pqc.crypto.falcon.FalconKeyPairGenerator;
-import org.bouncycastle.pqc.crypto.falcon.FalconParameters;
-import org.bouncycastle.pqc.crypto.falcon.FalconPrivateKeyParameters;
-import org.bouncycastle.pqc.crypto.falcon.FalconPublicKeyParameters;
-import org.bouncycastle.pqc.crypto.falcon.FalconSigner;
-import org.bouncycastle.pqc.jcajce.interfaces.CMCEKey;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
-import org.bouncycastle.pqc.jcajce.provider.cmce.BCCMCEPublicKey;
 
 
 
@@ -59,6 +39,7 @@ public class PQParser {
 	
 	private CMCEKEMGenerator kem_generator ;
 	private CMCEKeyPairGenerator keypair_generator ;
+	@SuppressWarnings("unused")
 	private KeyFactory sigs_factory ;
 	private KeyPairGenerator sigs_kpgen;
 	
@@ -99,13 +80,11 @@ public class PQParser {
 	}
 	public static byte[] sign(byte[] message, byte[] privateKey) throws  InvalidKeySpecException, InvalidKeyException, SignatureException {
 		KeyFactory sig_factory;
-		KeyPairGenerator sig_kpgen;
 		PrivateKey secret_key;
 		Signature signer;
 		PKCS8EncodedKeySpec sk_spec = new PKCS8EncodedKeySpec(privateKey);
 		try {
 			sig_factory = KeyFactory.getInstance(sig_param,new BouncyCastlePQCProvider());
-			sig_kpgen = KeyPairGenerator.getInstance(sig_param,new BouncyCastlePQCProvider());
 			secret_key = sig_factory.generatePrivate(sk_spec);
 			signer = Signature.getInstance(sig_param,new BouncyCastlePQCProvider());
 			signer.initSign(secret_key);
@@ -119,13 +98,11 @@ public class PQParser {
 	}
 	public static boolean verify(byte[] message,byte[] signature, byte[] publicKey) throws InvalidKeySpecException, InvalidKeyException, SignatureException {
 		KeyFactory sig_factory;
-		KeyPairGenerator sig_kpgen;
 		PublicKey public_key;
 		Signature verifier;
 		X509EncodedKeySpec pk_spec = new X509EncodedKeySpec(publicKey);
 		try {
 			sig_factory = KeyFactory.getInstance(sig_param,new BouncyCastlePQCProvider());
-			sig_kpgen = KeyPairGenerator.getInstance(sig_param,new BouncyCastlePQCProvider());
 			public_key = sig_factory.generatePublic(pk_spec);
 			verifier = Signature.getInstance(sig_param,new BouncyCastlePQCProvider());
 			verifier.initVerify(public_key);

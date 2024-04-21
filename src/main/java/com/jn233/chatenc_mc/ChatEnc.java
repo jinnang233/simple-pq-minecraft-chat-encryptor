@@ -9,29 +9,20 @@ import org.slf4j.LoggerFactory;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 
-import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents.Chat;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.event.client.ClientTickCallback;
+import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
-import net.fabricmc.fabric.impl.networking.PacketCallbackListener;
-import net.fabricmc.fabric.mixin.event.interaction.client.ClientPlayerInteractionManagerMixin;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.hud.ChatHud;
-import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.network.PacketCallbacks;
-import net.minecraft.network.listener.ClientCommonPacketListener;
-import net.minecraft.network.listener.ClientPacketListener;
+import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
 import net.minecraft.text.Text;
-import net.minecraft.world.WorldEvents;
+import net.minecraft.util.Identifier;
 
 
 public class ChatEnc implements ModInitializer {
@@ -46,10 +37,11 @@ public class ChatEnc implements ModInitializer {
 			new Thread() {
 				public void run() {
 						try {
-							MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.ensure_keypair"));
+							MinecraftClient instance = MinecraftClient.getInstance();
+							instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.ensure_keypair"));
 							(new PqEnc()).makesure();
 							keypair_initialized=true;
-							MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.keypair_generated"));
+							instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.keypair_generated"));
 						} catch (Exception e) {
 							ChatEnc.LOGGER.error(e.getMessage());
 						}
@@ -75,38 +67,36 @@ public class ChatEnc implements ModInitializer {
 			}
 		});
 		encryptor = new PqEnc();
-		ClientCommandRegistrationCallback.EVENT.register(
-				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal("einit")
-				.executes(context -> {
-					keypair_initialize();
-					return 1;
-				})));
+		ArgumentTypeRegistry.registerArgumentType(
+				  new Identifier("jn233_mcchat_enc", "enc_receiver"),
+				  ReceiverArgumentType.class, ConstantArgumentSerializer.of(ReceiverArgumentType::receiver));
+		
 		ClientCommandRegistrationCallback.EVENT.register(
 				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal("enc")
 				.then(ClientCommandManager.literal("tell")
-				.then(ClientCommandManager.argument("playername", StringArgumentType.string())
+				.then(ClientCommandManager.argument("receiver", ReceiverArgumentType.receiver())
 				.then(ClientCommandManager.argument("message",StringArgumentType.string())
 				.executes(context -> {
-					final String playername = StringArgumentType.getString(context,"playername");
+					
+					final String receiver = ReceiverArgumentType.getReceiver(context,"receiver");
 					final String message = StringArgumentType.getString(context,"message");
-					ChatHandler.sendEncrypted(encryptor, message, playername, false);
+					ChatHandler.sendEncrypted(encryptor, message, receiver, false);
 					return 1;
 				}))))));
 		ClientCommandRegistrationCallback.EVENT.register(
 				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal("enc")
 				.then(ClientCommandManager.literal("stell")
-				.then(ClientCommandManager.argument("playername", StringArgumentType.string())
+				.then(ClientCommandManager.argument("receiver", ReceiverArgumentType.receiver())
 				.then(ClientCommandManager.argument("message",StringArgumentType.string())
 				.executes(context -> {
-					final String playername = StringArgumentType.getString(context,"playername");
+					final String receiver = ReceiverArgumentType.getReceiver(context,"receiver");
 					final String message = StringArgumentType.getString(context,"message");
-					if(keypair_initialized) ChatHandler.sendEncrypted(encryptor, message, playername, true);
+					if(keypair_initialized) ChatHandler.sendEncrypted(encryptor, message, receiver, true);
 					return 1;
 				}))))));
 		
 		ClientReceiveMessageEvents.ALLOW_CHAT.register(
 				(message, signedMessage, sender, params, receptionTimestamp)->{
-					//keypair_initialize();
 					if(keypair_initialized && (!configurationScreen.silly_match)) return chat_handler.chatProcessWithSession(message.getString(), sender.getName());
 					return true;
 					
@@ -114,7 +104,6 @@ public class ChatEnc implements ModInitializer {
 				);
 		ClientReceiveMessageEvents.ALLOW_GAME.register(
 				(message,overlay)->{
-					//keypair_initialize();
 					if(keypair_initialized && configurationScreen.silly_match) {
 						String content_pattern = ChatEnc.configurationScreen.chat_regex;
 						Pattern content_patterner = Pattern.compile(content_pattern);
@@ -131,6 +120,8 @@ public class ChatEnc implements ModInitializer {
 					return;
 				}
 				);
+		
+
 	}
 }
 

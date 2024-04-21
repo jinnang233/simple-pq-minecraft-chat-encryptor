@@ -1,61 +1,21 @@
 package com.jn233.chatenc_mc;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-
 import net.minecraft.client.MinecraftClient;
-
-import net.minecraft.util.Pair;
-
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
 import java.util.Base64;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.security.SecureRandom;
 import java.security.SignatureException;
-
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
-import org.bouncycastle.crypto.KeyGenerationParameters;
 import org.bouncycastle.crypto.SecretWithEncapsulation;
-import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
-import org.bouncycastle.jcajce.provider.keystore.bc.BcKeyStoreSpi.BouncyCastleStore;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.pqc.asn1.CMCEPublicKey;
-import org.bouncycastle.pqc.crypto.cmce.CMCEKEMExtractor;
-import org.bouncycastle.pqc.crypto.cmce.CMCEKEMGenerator;
-import org.bouncycastle.pqc.crypto.cmce.CMCEKeyGenerationParameters;
-import org.bouncycastle.pqc.crypto.cmce.CMCEKeyPairGenerator;
-import org.bouncycastle.pqc.crypto.cmce.CMCEKeyParameters;
-import org.bouncycastle.pqc.crypto.cmce.CMCEParameters;
-import org.bouncycastle.pqc.crypto.cmce.CMCEPrivateKeyParameters;
-import org.bouncycastle.pqc.crypto.cmce.CMCEPublicKeyParameters;
-import org.bouncycastle.pqc.jcajce.interfaces.CMCEKey;
-import org.bouncycastle.pqc.jcajce.provider.cmce.BCCMCEPublicKey;
-
 
 public class PqEnc {
 	
@@ -131,9 +91,9 @@ public class PqEnc {
 		SigData sig_data = new SigData();
 		PQParser parser = new PQParser();
 		encryptionDataPack datapack = PQParser.unpack(Base64.getDecoder().decode(cipher));
-		if(datapack == null) {ChatEnc.LOGGER.info("Datapack is null!"); return null;};
+		if(datapack == null) {ChatEnc.LOGGER.error("Datapack is null!"); return null;};
 		if(datapack.type!=1 || (!datapack.playerName.equalsIgnoreCase(playerName))) {
-			ChatEnc.LOGGER.info("Wrong type or playername!");
+			ChatEnc.LOGGER.error("Wrong type or playername!");
 			return null;
 		}
 		
@@ -194,9 +154,6 @@ public class PqEnc {
 		objp.close();
 		ostream.close();
 
-		return Base64.getEncoder().encodeToString(data);
-	}
-	private String base64encode(byte[] data) {
 		return Base64.getEncoder().encodeToString(data);
 	}
 	// AES encrypt

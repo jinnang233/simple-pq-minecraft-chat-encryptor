@@ -2,27 +2,18 @@ package com.jn233.chatenc_mc;
 
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ChatScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.TitleScreen;
-import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
+
 import net.minecraft.text.Text;
-import net.minecraft.util.Pair;
 
 import java.io.IOException; 
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 
 public class ChatHandler {
@@ -50,7 +41,7 @@ public class ChatHandler {
 	public void sessionProcess(Matcher sessionMatcher) {
 		// TODO Process message.
 		if(sessionMatcher.groupCount()!=2) {return;}
-		LOGGER.info("Session match!"); 
+		LOGGER.debug("Session match!"); 
 		
 
 		String sessionId = sessionMatcher.group(1); 
@@ -61,7 +52,7 @@ public class ChatHandler {
 	}
 	public void sessionEndProcess(Matcher sessionEndMatcher,String playerName) {
 		if(sessionEndMatcher.groupCount()!=1) {return;}
-		LOGGER.info("Session end match!");
+		LOGGER.debug("Session end match!");
 		
 		String sessionId = sessionEndMatcher.group(1);
 		
@@ -75,8 +66,6 @@ public class ChatHandler {
 	public boolean chatProcessWithSession(String message,String playerName) {
 		// TODO Try to match the message using regular expression, if the match is successful process the encrypted message
 
-		MinecraftClient instance = MinecraftClient.getInstance();		
-		
 		Matcher session_end_pattern_matcher = session_end_pattern_patterner.matcher(message);
 		
 		Matcher session_pattern_matcher = session_pattern_patterner.matcher(message);
@@ -127,41 +116,50 @@ public class ChatHandler {
 		// Try to decrypt the packet
 		encryptionDataPack datapack = PQParser.unpack(Base64.getDecoder().decode(message));
 		
-		// Determine the length of the signature and try to verify the signature if it is not empty
-		if(datapack.signature.length!=0) {
-			byte[] sig_pk = PKStorageGlass.get(instance, sender, true);
-			sigdata = encryptor.decrypt_and_verify(message, sk, instance.player.getName().getString(), sig_pk);
-			chat=sigdata.data;
-		}else {
-			chat = encryptor.simple_KEM_decrypt(message, sk, instance.player.getName().getString());
-		}
-		
-		
-		// Try to decrypt using encryptor
-		
+		switch(datapack.type) {
+			case 1:
+				// Determine the length of the signature and try to verify the signature if it is not empty
+				if(datapack.signature.length!=0) {
+					byte[] sig_pk = PKStorageGlass.get(instance, sender, true);
+					sigdata = encryptor.decrypt_and_verify(message, sk, instance.player.getName().getString(), sig_pk);
+					chat=sigdata.data;
+				}else {
+					chat = encryptor.simple_KEM_decrypt(message, sk, instance.player.getName().getString());
+				}
+				
+				
+				// Try to decrypt using encryptor
+				
 
-		if(chat==null && (!instance.player.getName().getString().equals(sender))) {printFailure();return;}
-		
-		String result=new String(chat);
-		// Show in game
-		String postfix="general.jn233_mcchat_enc.nosignature";
-		if(sigdata!=null) {
-			if(sigdata.is_valid) {
-				postfix="general.jn233_mcchat_enc.valid";
-			}else {
-				postfix="general.jn233_mcchat_enc.invalid";
-			}
+				if(chat==null && (!instance.player.getName().getString().equals(sender))) {printFailure();return;}
+				
+				String result=new String(chat);
+				// Show in game
+				String postfix="general.jn233_mcchat_enc.nosignature";
+				if(sigdata!=null) {
+					if(sigdata.is_valid) {
+						postfix="general.jn233_mcchat_enc.valid";
+					}else {
+						postfix="general.jn233_mcchat_enc.invalid";
+					}
+				}
+				
+				// Output message
+				Text output_text = 
+						Text.literal("[")
+						.append(Text.literal(sender))
+						.append(Text.literal("]"))
+						.append(Text.literal("["))
+						.append(Text.translatable(postfix))
+						.append(Text.literal("]"))
+						.append(Text.translatable("general.jn233_mcchat_enc.encrypt_tip"))
+						.append(Text.literal(":" + result));
+						instance.inGameHud.getChatHud().addMessage(output_text);
+						
+				break;
 		}
 		
-		// Output message
-		Text output_text = Text.literal(sender)
-				.append(Text.literal("["))
-				.append(Text.translatable(postfix))
-				.append(Text.literal("]"))
-				.append(Text.literal(" "))
-				.append(Text.translatable("general.jn233_mcchat_enc.encrypt_tip"))
-				.append(Text.literal(":" + result));
-				instance.inGameHud.getChatHud().addMessage(output_text);
+		
 	}
 	
 	public static void cutSend(String message,int length, int message_delay) {
@@ -170,13 +168,14 @@ public class ChatHandler {
 		progress.setDelay(message_delay);
 		int total = (int)Math.ceil(message.length()/length)+1;
 		progress.setTotal(total);
+		MinecraftClient instance = MinecraftClient.getInstance();
 		for(int i=0;i<message.length();i+=length) {
 			progress.setCurrent(i/length);
-			progress.setSender(MinecraftClient.getInstance().player.getName().toString());
+			progress.setSender(instance.player.getName().toString());
 			progress.setSessionId(sessionUid.toString());
 			String message_cuted = "[+=" + sessionUid.toString() + "]:" + message.substring(i,i+length>message.length()?message.length():i+length);
 
-			MinecraftClient.getInstance().getNetworkHandler().sendChatMessage(message_cuted);
+			instance.getNetworkHandler().sendChatMessage(message_cuted);
 			//MinecraftClient.getInstance().getNetworkHandler().sendPacket(new ChatMessageC2SPacket(message_cuted));
 			try {
 				Thread.sleep(message_delay);
@@ -188,7 +187,7 @@ public class ChatHandler {
 			} catch (Exception e) {}
 		}
 		String message_ending = "[$=" + sessionUid.toString()  + "]";
-		MinecraftClient.getInstance().getNetworkHandler().sendChatMessage(message_ending);
+		instance.getNetworkHandler().sendChatMessage(message_ending);
 		//MinecraftClient.getInstance().getNetworkHandler().sendPacket(new ChatMessageC2SPacket(message_ending));
 		progress.setCurrent(total);
 		try {
@@ -204,7 +203,7 @@ public class ChatHandler {
 			// TODO Encrypt the message and send it to the specified person
 			boolean playerFound = false;
 			MinecraftClient instance = MinecraftClient.getInstance();
-			instance.inGameHud.getChatHud().addToMessageHistory(message);
+			// instance.inGameHud.getChatHud().addToMessageHistory(message);
 			if(!PqEnc.privLoaded) { 
 				instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.private_key_not_available_yet"));
 				

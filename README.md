@@ -6,32 +6,22 @@ A chat encryption mod for Minecraft that uses post-quantum KEM CMCE(Classic Mcel
 
 - Fabric API
 - Cloth Config
-- Cloth API
 
 # Usage
 
 ## Key Pair
 
-Key Pair is automatically generated when ChatHud update. 
+Key Pair is automatically generated. 
 
-After you exchange your public keys, you can send an encrypted message to someone with or without signing.
+After you exchange your public keys, you can send an encrypted message to someone.
 
 Public key files is under directory "keys" and end with `.pk` or `.spk`.
 
 
-
-## Initialize before sending a message
-
-```
-/einit
-```
-
-
-
-## Send an encrypted message to someone without signing
+## Send an encrypted message to someone without signature
 
 ```
-/enc tell <Playername> <Message>
+/enc tell <receiver> <message>
 ```
 
 For example:
@@ -40,10 +30,10 @@ For example:
 /enc tell Player166 Hello
 ```
 
-## Send an encrypted message to someone with signing
+## Send an encrypted message to someone with signature
 
 ```
-/enc stell <Playername> <Message>
+/enc stell <receiver> <message>
 ```
 
 For example:
@@ -54,7 +44,7 @@ For example:
 
 # Warnings
 
-1. I'm not good at coding. The mod may contain bugs. Use it at your own risk.
+1. I'm not good at coding. This mod may contain bugs. Use it at your own risk.
 2. Server may consider these encrypted messages as spam. 
 3. Post-quantum algorithms used in these project is **not** formally aduited by cryptographiers. Messages may be cracked in the future.
 4. Due to message size problem, the project does **not** use **hybrid** encryption. 
