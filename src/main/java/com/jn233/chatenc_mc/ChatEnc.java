@@ -9,22 +9,29 @@ import org.slf4j.LoggerFactory;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 
+import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents.Chat;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.event.client.ClientTickCallback;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.impl.networking.PacketCallbackListener;
+import net.fabricmc.fabric.mixin.event.interaction.client.ClientPlayerInteractionManagerMixin;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.hud.ChatHud;
+import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.PacketCallbacks;
 import net.minecraft.network.listener.ClientCommonPacketListener;
 import net.minecraft.network.listener.ClientPacketListener;
 import net.minecraft.text.Text;
+import net.minecraft.world.WorldEvents;
 
 
 public class ChatEnc implements ModInitializer {
@@ -33,6 +40,24 @@ public class ChatEnc implements ModInitializer {
 	private boolean keypair_initialized = false;
 	private static com.jn233.chatenc_mc.ChatHandler chat_handler = new com.jn233.chatenc_mc.ChatHandler();
 	public static EncryptorConfigurationScreen configurationScreen = new EncryptorConfigurationScreen();
+	
+	public void keypair_initialize() {
+		if(!keypair_initialized) {
+			new Thread() {
+				public void run() {
+						try {
+							MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.ensure_keypair"));
+							(new PqEnc()).makesure();
+							keypair_initialized=true;
+							MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.keypair_generated"));
+						} catch (Exception e) {
+							ChatEnc.LOGGER.error(e.getMessage());
+						}
+					
+				}
+			}.start();
+		}
+}
 	
 	@Override
 	public void onInitialize() {
@@ -53,19 +78,7 @@ public class ChatEnc implements ModInitializer {
 		ClientCommandRegistrationCallback.EVENT.register(
 				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal("einit")
 				.executes(context -> {
-					new Thread() {
-						public void run() {
-							try {
-								MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.ensure_keypair"));
-								(new PqEnc()).makesure();
-								keypair_initialized=true;
-								MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.keypair_generated"));
-							} catch (Exception e) {
-								ChatEnc.LOGGER.error(e.getMessage());
-							}
-						}
-					
-					}.start();
+					keypair_initialize();
 					return 1;
 				})));
 		ClientCommandRegistrationCallback.EVENT.register(
@@ -93,6 +106,7 @@ public class ChatEnc implements ModInitializer {
 		
 		ClientReceiveMessageEvents.ALLOW_CHAT.register(
 				(message, signedMessage, sender, params, receptionTimestamp)->{
+					//keypair_initialize();
 					if(keypair_initialized && (!configurationScreen.silly_match)) return chat_handler.chatProcessWithSession(message.getString(), sender.getName());
 					return true;
 					
@@ -100,6 +114,7 @@ public class ChatEnc implements ModInitializer {
 				);
 		ClientReceiveMessageEvents.ALLOW_GAME.register(
 				(message,overlay)->{
+					//keypair_initialize();
 					if(keypair_initialized && configurationScreen.silly_match) {
 						String content_pattern = ChatEnc.configurationScreen.chat_regex;
 						Pattern content_patterner = Pattern.compile(content_pattern);
@@ -108,6 +123,12 @@ public class ChatEnc implements ModInitializer {
 						return chat_handler.chatProcessWithSession(player_message_matcher.group(2), player_message_matcher.group(1));
 					}
 					return true;
+				}
+				);
+		ClientPlayConnectionEvents.JOIN.register(
+				(handler,sender,client)->{
+					keypair_initialize();
+					return;
 				}
 				);
 	}
