@@ -32,10 +32,12 @@ import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 
 
 public class PQParser {
-	private final SecureRandom sr = new SecureRandom();
 	public static final CMCEParameters param = CMCEParameters.mceliece8192128r3;
-	
 	public static final String sig_param = "Falcon-512";
+	
+	
+	
+	private final SecureRandom sr = new SecureRandom();
 	
 	private CMCEKEMGenerator kem_generator ;
 	private CMCEKeyPairGenerator keypair_generator ;

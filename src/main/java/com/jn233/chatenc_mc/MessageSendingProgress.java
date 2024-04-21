@@ -3,7 +3,6 @@ package com.jn233.chatenc_mc;
 import java.util.concurrent.Callable;
 
 import net.minecraft.client.MinecraftClient;
-
 import net.minecraft.text.Text;
 
 
@@ -36,7 +35,6 @@ public class MessageSendingProgress implements Callable<Object> {
 				.append(Text.literal(":" + String.format("%d/%d %d%% (%f s)",current,total,current_progress,remain_time)));
 		MinecraftClient instance = MinecraftClient.getInstance();
 		instance.inGameHud.getChatHud().addMessage(output_text);
-
 		return null;
 	}
 

@@ -8,9 +8,9 @@ import net.minecraft.text.Text;
 import java.io.IOException; 
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.CRC32;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ public class ChatHandler {
 	
 	
 	private String session_pattern = "\\[\\+\\=(.*)\\]\\:(.*)"; 
-	private String session_end_pattern = "\\[\\$\\=(.*)\\]"; 
+	private String session_end_pattern = "\\[\\$\\=(.*)\\]:(.*)"; 
 	
 
 	private Pattern session_end_pattern_patterner = Pattern.compile(session_end_pattern);
@@ -51,13 +51,14 @@ public class ChatHandler {
 		
 	}
 	public void sessionEndProcess(Matcher sessionEndMatcher,String playerName) {
-		if(sessionEndMatcher.groupCount()!=1) {return;}
+		if(sessionEndMatcher.groupCount()!=2) {return;}
 		LOGGER.debug("Session end match!");
 		
 		String sessionId = sessionEndMatcher.group(1);
-		
-		if(!sessionMap.containsKey(sessionId)) return;
-		String content = (String) sessionMap.get(sessionId);
+		String content = sessionEndMatcher.group(2);	
+		//if(!sessionMap.containsKey(sessionId)) return;
+		sessionMap.put(sessionId, sessionMap.containsKey(sessionId)?sessionMap.get(sessionId)+content:content);
+		content = (String) sessionMap.get(sessionId);
 		chatProcess(content,playerName); 
 
 		// Delete processed session
@@ -163,36 +164,48 @@ public class ChatHandler {
 	}
 	
 	public static void cutSend(String message,int length, int message_delay) {
-		UUID sessionUid = UUID.randomUUID();
+		//UUID sessionUid = UUID.randomUUID();
+		CRC32 crc32 = new CRC32();
+		crc32.update(message.getBytes());
+		long checksum = crc32.getValue();
+		String sessionId = Long.toHexString(checksum);
 		MessageSendingProgress progress = new MessageSendingProgress();
 		progress.setDelay(message_delay);
 		int total = (int)Math.ceil(message.length()/length)+1;
 		progress.setTotal(total);
 		MinecraftClient instance = MinecraftClient.getInstance();
 		for(int i=0;i<message.length();i+=length) {
-			progress.setCurrent(i/length);
+			progress.setCurrent((i/length)+1);
 			progress.setSender(instance.player.getName().toString());
-			progress.setSessionId(sessionUid.toString());
-			String message_cuted = "[+=" + sessionUid.toString() + "]:" + message.substring(i,i+length>message.length()?message.length():i+length);
-
+			progress.setSessionId(sessionId);
+			String message_cuted = sessionId + "]:" + message.substring(i,i+length>message.length()?message.length():i+length);
+			if(i+length>=message.length()) {
+				message_cuted="[$="+message_cuted;
+			}else{
+				message_cuted="[+="+message_cuted;
+			}
+			
+			
 			instance.getNetworkHandler().sendChatMessage(message_cuted);
+			
+			try {
+				progress.call();
+			} catch (Exception e) {}
 			//MinecraftClient.getInstance().getNetworkHandler().sendPacket(new ChatMessageC2SPacket(message_cuted));
 			try {
 				Thread.sleep(message_delay);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			try {
-				progress.call();
-			} catch (Exception e) {}
+			
 		}
-		String message_ending = "[$=" + sessionUid.toString()  + "]";
-		instance.getNetworkHandler().sendChatMessage(message_ending);
-		//MinecraftClient.getInstance().getNetworkHandler().sendPacket(new ChatMessageC2SPacket(message_ending));
-		progress.setCurrent(total);
-		try {
-			progress.call();
-		} catch (Exception e) {}
+//		String message_ending = "[$=" + sessionUid.toString()  + "]";
+//		instance.getNetworkHandler().sendChatMessage(message_ending);
+//		MinecraftClient.getInstance().getNetworkHandler().sendPacket(new ChatMessageC2SPacket(message_ending));
+//		progress.setCurrent(total);
+//		try {
+//			progress.call();
+//		} catch (Exception e) {}
 	}
 	
 	public static void cutSend(String message,int length){
