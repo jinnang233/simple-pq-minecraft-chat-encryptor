@@ -4,8 +4,9 @@ package com.jn233.chatenc_mc;
 import net.minecraft.client.MinecraftClient;
 
 import net.minecraft.text.Text;
+import net.minecraft.util.math.random.Random;
 
-import java.io.IOException; 
+import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -180,6 +181,8 @@ public class ChatHandler {
 		//UUID sessionUid = UUID.randomUUID();
 		CRC32 crc32 = new CRC32();
 		crc32.update(message.getBytes());
+		crc32.update(Long.toHexString(System.currentTimeMillis()).getBytes());
+		crc32.update(Long.toHexString(Random.create().nextLong()).getBytes());
 		long checksum = crc32.getValue();
 		String sessionId = Long.toHexString(checksum);
 		MessageSendingProgress progress = new MessageSendingProgress();

@@ -16,7 +16,6 @@ import java.util.Base64;
 import java.security.SignatureException;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.SecretWithEncapsulation;
-import org.bouncycastle.util.Bytes;
 
 import java.util.HashMap;
 
