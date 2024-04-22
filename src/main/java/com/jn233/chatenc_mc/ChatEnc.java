@@ -31,6 +31,8 @@ public class ChatEnc implements ModInitializer {
 	private boolean keypair_initialized = false;
 	private static com.jn233.chatenc_mc.ChatHandler chat_handler = new com.jn233.chatenc_mc.ChatHandler();
 	public static EncryptorConfigurationScreen configurationScreen = new EncryptorConfigurationScreen();
+	public static final String rootCommand = "enc";
+	
 	
 	public void keypair_initialize() {
 		if(!keypair_initialized) {
@@ -72,7 +74,7 @@ public class ChatEnc implements ModInitializer {
 				  ReceiverArgumentType.class, ConstantArgumentSerializer.of(ReceiverArgumentType::receiver));
 		
 		ClientCommandRegistrationCallback.EVENT.register(
-				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal("enc")
+				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal(rootCommand)
 				.then(ClientCommandManager.literal("tell")
 				.then(ClientCommandManager.argument("receiver", ReceiverArgumentType.receiver())
 				.then(ClientCommandManager.argument("message",StringArgumentType.string())
@@ -84,7 +86,7 @@ public class ChatEnc implements ModInitializer {
 					return 1;
 				}))))));
 		ClientCommandRegistrationCallback.EVENT.register(
-				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal("enc")
+				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal(rootCommand)
 				.then(ClientCommandManager.literal("stell")
 				.then(ClientCommandManager.argument("receiver", ReceiverArgumentType.receiver())
 				.then(ClientCommandManager.argument("message",StringArgumentType.string())
@@ -96,7 +98,7 @@ public class ChatEnc implements ModInitializer {
 				}))))));
 		
 		ClientCommandRegistrationCallback.EVENT.register(
-				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal("enc")
+				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal(rootCommand)
 				.then(ClientCommandManager.literal("exchange")
 				.then(ClientCommandManager.argument("receiver", ReceiverArgumentType.receiver())
 				.executes(context -> {
@@ -105,7 +107,7 @@ public class ChatEnc implements ModInitializer {
 					return 1;
 				})))));
 		ClientCommandRegistrationCallback.EVENT.register(
-				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal("enc")
+				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal(rootCommand)
 				.then(ClientCommandManager.literal("etell")
 				.then(ClientCommandManager.argument("receiver", ReceiverArgumentType.receiver())
 				.then(ClientCommandManager.argument("message",StringArgumentType.string())
@@ -116,8 +118,24 @@ public class ChatEnc implements ModInitializer {
 					return 1;
 				}))))));
 		
-		
-		
+		ClientCommandRegistrationCallback.EVENT.register(
+				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal(rootCommand)
+				.then(ClientCommandManager.literal("saveconfig")
+				.executes(context -> {
+					MinecraftClient instance = MinecraftClient.getInstance();
+					configurationScreen.storeConfiguration();
+					instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.config_saved"));
+					return 1;
+				}))));
+		ClientCommandRegistrationCallback.EVENT.register(
+				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal(rootCommand)
+				.then(ClientCommandManager.literal("loadconfig")
+				.executes(context -> {
+					MinecraftClient instance = MinecraftClient.getInstance();
+					configurationScreen.readConfiguration();
+					instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.config_loaded"));
+					return 1;
+				}))));
 		
 		ClientReceiveMessageEvents.ALLOW_CHAT.register(
 				(message, signedMessage, sender, params, receptionTimestamp)->{

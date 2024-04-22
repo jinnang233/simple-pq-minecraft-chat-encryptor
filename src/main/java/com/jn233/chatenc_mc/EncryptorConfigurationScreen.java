@@ -36,7 +36,7 @@ public class EncryptorConfigurationScreen  {
 		readConfiguration();
 		
 	}
-	private void storeConfiguration() {
+	public void storeConfiguration() {
 		Yaml yaml = new Yaml();
 		
 		
@@ -61,7 +61,7 @@ public class EncryptorConfigurationScreen  {
 	}
 	
 	
-	private void readConfiguration() {
+	public void readConfiguration() {
 		Yaml yaml = new Yaml();
 		
 		

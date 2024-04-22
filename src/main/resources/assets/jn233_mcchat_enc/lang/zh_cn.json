@@ -15,6 +15,8 @@
 	"general.jn233_mcchat_enc.sending":"发送中",
 	"general.jn233_mcchat_enc.exchange_secret":"向您交换了对称密钥",
 	"general.jn233_mcchat_enc.unidirectional":"单向",
+	"general.jn233_mcchat_enc.config_loaded":"配置已加载",
+	"general.jn233_mcchat_enc.config_saved":"配置已保存",
 	"key.jn233_mcchat_enc.settings":"设置",
 	"category.jn233_mcchat_enc.chatkeybind":"PQChatEnc",
 	"title.jn233_mcchat_enc.config":"聊天加密设置",
