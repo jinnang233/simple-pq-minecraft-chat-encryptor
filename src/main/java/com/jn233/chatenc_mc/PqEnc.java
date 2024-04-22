@@ -68,14 +68,14 @@ public class PqEnc {
 		return Base64.getEncoder().encodeToString(result);
 		
 	}
-	public void decaps(String cipher,byte[] sk,String playerName,String sender) {
+	public boolean decaps(String cipher,byte[] sk,String playerName,String sender) {
 		PQParser parser = new PQParser();
 		encryptionDataPack datapack = PQParser.unpack(Base64.getDecoder().decode(cipher));
-		if(datapack == null) {ChatEnc.LOGGER.info("Datapack is null!"); return;};
+		if(datapack == null) {ChatEnc.LOGGER.info("Datapack is null!"); return false;};
 		
 		if(datapack.type!=2 || (!datapack.playerName.equalsIgnoreCase(playerName))) {
 			ChatEnc.LOGGER.info("Wrong type or playername!");
-			return;
+			return false;
 		}
 		
 		byte[] ss = parser.decaps(datapack.ciphertext, sk);
@@ -85,6 +85,7 @@ public class PqEnc {
 		ss_datapack.data=ss;
 		
 		ss_map_recv.put(sender, ss_datapack);
+		return true;
 	}
 	public String ss_encrypt(byte[] data,byte[] pk,String playerName) throws IOException {
 		MinecraftClient instance = MinecraftClient.getInstance();

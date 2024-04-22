@@ -13,6 +13,8 @@
 	"general.jn233_mcchat_enc.invalid":"Invalid",
 	"general.jn233_mcchat_enc.nosignature":"No signature",
 	"general.jn233_mcchat_enc.sending":"Sending",
+	"general.jn233_mcchat_enc.exchange_secret":"exchanged symmetric keys with you",
+	"general.jn233_mcchat_enc.unidirectional":"Unidirectional",
 	"key.jn233_mcchat_enc.settings":"Settings",
 	"category.jn233_mcchat_enc.chatkeybind":"PQChatEnc",
 	"title.jn233_mcchat_enc.config":"Chat encryption settings",

@@ -152,7 +152,16 @@ public class ChatHandler {
 						
 				break;
 			case 2:
-				encryptor.decaps(message,sk,instance.player.getName().getString(), sender);
+				if(encryptor.decaps(message,sk,instance.player.getName().getString(), sender)) {
+					instance.inGameHud.getChatHud().addMessage(
+							Text.literal(sender)
+							.append(Text.literal(" "))
+							.append(Text.translatable("general.jn233_mcchat_enc.exchange_secret"))
+							.append(Text.literal("("))
+							.append(Text.translatable("general.jn233_mcchat_enc.unidirectional"))
+							.append(Text.translatable(")"))
+							);
+				}
 				break;
 				
 			case 3:

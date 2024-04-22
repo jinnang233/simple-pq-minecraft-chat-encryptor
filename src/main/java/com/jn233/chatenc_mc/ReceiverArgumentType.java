@@ -10,7 +10,6 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.command.CommandSource;
 import net.minecraft.text.Text;
 
@@ -35,8 +34,6 @@ public class ReceiverArgumentType implements ArgumentType<String> {
 	    }
 	    String receiver = reader.getString().substring(argBeginning, reader.getCursor());
 	    
-	    if(!ClientPlayerEntity.isUsernameValid(receiver))
-	    	throw INVALID_RECEIVER.createWithContext(reader, "Username invalid");
 	    List<String> receiverList = PKStorageGlass.getAllPlayerNames(instance);
 	    boolean receiver_existed = false;
 	    for(String r : receiverList) {

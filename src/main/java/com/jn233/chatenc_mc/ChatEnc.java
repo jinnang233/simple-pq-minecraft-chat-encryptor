@@ -56,7 +56,7 @@ public class ChatEnc implements ModInitializer {
 		KeyBinding keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 				"key.jn233_mcchat_enc.settings",
 				InputUtil.Type.KEYSYM,
-				GLFW.GLFW_KEY_J,
+				GLFW.GLFW_KEY_UNKNOWN,
 				"category.jn233_mcchat_enc.chatkeybind"
 				));
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
