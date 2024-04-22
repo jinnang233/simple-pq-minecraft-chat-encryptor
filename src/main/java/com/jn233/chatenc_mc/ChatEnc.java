@@ -55,19 +55,19 @@ public class ChatEnc implements ModInitializer {
 	
 	@Override
 	public void onInitialize() {
-		KeyBinding keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-				"key.jn233_mcchat_enc.settings",
-				InputUtil.Type.KEYSYM,
-				GLFW.GLFW_KEY_UNKNOWN,
-				"category.jn233_mcchat_enc.chatkeybind"
-				));
-		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			while(keyBinding.wasPressed()) {
-				MinecraftClient instance = MinecraftClient.getInstance();
-				instance.setScreen(ChatEnc.configurationScreen.makeScreen(instance.currentScreen));;
-				
-			}
-		});
+//		KeyBinding keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+//				"key.jn233_mcchat_enc.settings",
+//				InputUtil.Type.KEYSYM,
+//				GLFW.GLFW_KEY_UNKNOWN,
+//				"category.jn233_mcchat_enc.chatkeybind"
+//				));
+//		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+//			while(keyBinding.wasPressed()) {
+//				MinecraftClient instance = MinecraftClient.getInstance();
+//				instance.setScreen(ChatEnc.configurationScreen.makeScreen(instance.currentScreen));;
+//				
+//			}
+//		});
 		encryptor = new PqEnc();
 		ArgumentTypeRegistry.registerArgumentType(
 				  new Identifier("jn233_mcchat_enc", "enc_receiver"),
@@ -136,7 +136,14 @@ public class ChatEnc implements ModInitializer {
 					instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.config_loaded"));
 					return 1;
 				}))));
-		
+//		ClientCommandRegistrationCallback.EVENT.register(
+//				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal(rootCommand)
+//				.then(ClientCommandManager.literal("openconfig")
+//				.executes(context -> {
+//					MinecraftClient client = context.getSource().getClient();
+//					client.execute(()->client.setScreen(ChatEnc.configurationScreen.makeScreen(client.currentScreen)));
+//					return 1;
+//				}))));
 		ClientReceiveMessageEvents.ALLOW_CHAT.register(
 				(message, signedMessage, sender, params, receptionTimestamp)->{
 					if(keypair_initialized && (!configurationScreen.silly_match)) return chat_handler.chatProcessWithSession(message.getString(), sender.getName());
