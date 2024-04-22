@@ -79,6 +79,6 @@ This project is impossible without these projects:
 - [BouncyCastle](https://github.com/bcgit/bc-csharp)
 - [Fabric](https://fabricmc.net/)
 - [Fabric API](https://fabricmc.net/)
-- [MidnightLib]([MidnightLib - MidnightDust](https://www.midnightdust.eu/midnightlib/))
+- [MidnightLib - MidnightDust](https://www.midnightdust.eu/midnightlib/)
 
 Thanks to all these projects.
