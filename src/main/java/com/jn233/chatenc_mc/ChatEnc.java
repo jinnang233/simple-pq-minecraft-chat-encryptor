@@ -3,23 +3,19 @@ package com.jn233.chatenc_mc;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 
+import eu.midnightdust.lib.config.MidnightConfig;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
 import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -30,7 +26,7 @@ public class ChatEnc implements ModInitializer {
 	private PqEnc encryptor;
 	private boolean keypair_initialized = false;
 	private static com.jn233.chatenc_mc.ChatHandler chat_handler = new com.jn233.chatenc_mc.ChatHandler();
-	public static EncryptorConfigurationScreen configurationScreen = new EncryptorConfigurationScreen();
+	public static Configuration configurationScreen = new Configuration();
 	public static final String rootCommand = "enc";
 	
 	
@@ -40,10 +36,10 @@ public class ChatEnc implements ModInitializer {
 				public void run() {
 						try {
 							MinecraftClient instance = MinecraftClient.getInstance();
-							instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.ensure_keypair"));
+							if(Configuration.message_detail)instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.ensure_keypair"));
 							(new PqEnc()).makesure();
 							keypair_initialized=true;
-							instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.keypair_generated"));
+							if(Configuration.message_detail)instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.keypair_generated"));
 						} catch (Exception e) {
 							ChatEnc.LOGGER.error(e.getMessage());
 						}
@@ -55,19 +51,8 @@ public class ChatEnc implements ModInitializer {
 	
 	@Override
 	public void onInitialize() {
-//		KeyBinding keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-//				"key.jn233_mcchat_enc.settings",
-//				InputUtil.Type.KEYSYM,
-//				GLFW.GLFW_KEY_UNKNOWN,
-//				"category.jn233_mcchat_enc.chatkeybind"
-//				));
-//		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-//			while(keyBinding.wasPressed()) {
-//				MinecraftClient instance = MinecraftClient.getInstance();
-//				instance.setScreen(ChatEnc.configurationScreen.makeScreen(instance.currentScreen));;
-//				
-//			}
-//		});
+		MidnightConfig.init("jn233_mcchat_enc", Configuration.class);
+		
 		encryptor = new PqEnc();
 		ArgumentTypeRegistry.registerArgumentType(
 				  new Identifier("jn233_mcchat_enc", "enc_receiver"),
@@ -117,44 +102,16 @@ public class ChatEnc implements ModInitializer {
 					if(keypair_initialized) ChatHandler.sendEncrypted(encryptor, message, receiver, true,3);
 					return 1;
 				}))))));
-		
-		ClientCommandRegistrationCallback.EVENT.register(
-				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal(rootCommand)
-				.then(ClientCommandManager.literal("saveconfig")
-				.executes(context -> {
-					MinecraftClient instance = MinecraftClient.getInstance();
-					configurationScreen.storeConfiguration();
-					instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.config_saved"));
-					return 1;
-				}))));
-		ClientCommandRegistrationCallback.EVENT.register(
-				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal(rootCommand)
-				.then(ClientCommandManager.literal("loadconfig")
-				.executes(context -> {
-					MinecraftClient instance = MinecraftClient.getInstance();
-					configurationScreen.readConfiguration();
-					instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.config_loaded"));
-					return 1;
-				}))));
-//		ClientCommandRegistrationCallback.EVENT.register(
-//				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal(rootCommand)
-//				.then(ClientCommandManager.literal("openconfig")
-//				.executes(context -> {
-//					MinecraftClient client = context.getSource().getClient();
-//					client.execute(()->client.setScreen(ChatEnc.configurationScreen.makeScreen(client.currentScreen)));
-//					return 1;
-//				}))));
 		ClientReceiveMessageEvents.ALLOW_CHAT.register(
 				(message, signedMessage, sender, params, receptionTimestamp)->{
-					if(keypair_initialized && (!configurationScreen.silly_match)) return chat_handler.chatProcessWithSession(message.getString(), sender.getName());
+					if(keypair_initialized && (!Configuration.silly_match)) return chat_handler.chatProcessWithSession(message.getString(), sender.getName());
 					return true;
-					
 				}
 				);
 		ClientReceiveMessageEvents.ALLOW_GAME.register(
 				(message,overlay)->{
-					if(keypair_initialized && configurationScreen.silly_match) {
-						String content_pattern = ChatEnc.configurationScreen.chat_regex;
+					if(keypair_initialized && Configuration.silly_match) {
+						String content_pattern = Configuration.chat_regex;
 						Pattern content_patterner = Pattern.compile(content_pattern);
 						Matcher player_message_matcher = content_patterner.matcher(message.getString());
 						if(!player_message_matcher.find()) return true;

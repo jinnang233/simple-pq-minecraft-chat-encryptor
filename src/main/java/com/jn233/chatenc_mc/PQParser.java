@@ -191,8 +191,6 @@ public class PQParser {
 				dataPack.extend = input.readNBytes(len_extend);
 				
 				return dataPack;
-				//dataPack.ciphertext = 
-				//return (encryptionDataPack) input.readObject();
 			} catch (IOException e) {
 				e.printStackTrace();
 				return null;

@@ -34,8 +34,12 @@ public class MessageSendingProgress implements Callable<Object> {
 				.append(Text.translatable("general.jn233_mcchat_enc.sending"))
 				.append(Text.literal(":" + String.format("%d/%d %d%% (%f s)",current,total,current_progress,remain_time)));
 		MinecraftClient instance = MinecraftClient.getInstance();
-		if(ChatEnc.configurationScreen.progress_bar)instance.inGameHud.getChatHud().addMessage(output_text);
+		if(Configuration.progress_bar)instance.inGameHud.getChatHud().addMessage(output_text);
 		return null;
+	}
+	public void finish() {
+		MinecraftClient instance = MinecraftClient.getInstance();
+		instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.message_sent"));
 	}
 
 }

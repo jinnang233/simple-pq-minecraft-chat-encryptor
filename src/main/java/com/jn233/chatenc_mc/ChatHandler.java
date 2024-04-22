@@ -72,15 +72,14 @@ public class ChatHandler {
 		
 		Matcher session_pattern_matcher = session_pattern_patterner.matcher(message);
 		
-		// LOGGER.info("player:" + player_message_matcher.group(2).strip());
 		
 		if(session_pattern_matcher.find()) { 
 			sessionProcess(session_pattern_matcher);
 			//No echo
-			if(!ChatEnc.configurationScreen.encrypted_echo)return false;
+			if(!Configuration.encrypted_echo)return false;
 		}else if(session_end_pattern_matcher.find()) { 
 			sessionEndProcess(session_end_pattern_matcher,playerName);
-			if(!ChatEnc.configurationScreen.encrypted_echo)return false;
+			if(!Configuration.encrypted_echo)return false;
 		
 		}
 		return true;
@@ -187,13 +186,14 @@ public class ChatHandler {
 	}
 	
 	public static void cutSend(String message,int length, int message_delay) {
-		//UUID sessionUid = UUID.randomUUID();
+		// Compute CRC32
 		CRC32 crc32 = new CRC32();
 		crc32.update(message.getBytes());
 		crc32.update(Long.toHexString(System.currentTimeMillis()).getBytes());
 		crc32.update(Long.toHexString(Random.create().nextLong()).getBytes());
 		long checksum = crc32.getValue();
 		String sessionId = Long.toHexString(checksum);
+		
 		MessageSendingProgress progress = new MessageSendingProgress();
 		progress.setDelay(message_delay);
 		int total = (int)Math.ceil(message.length()/length)+1;
@@ -216,7 +216,6 @@ public class ChatHandler {
 			try {
 				progress.call();
 			} catch (Exception e) {}
-			//MinecraftClient.getInstance().getNetworkHandler().sendPacket(new ChatMessageC2SPacket(message_cuted));
 			try {
 				Thread.sleep(message_delay);
 			} catch (InterruptedException e) {
@@ -224,13 +223,7 @@ public class ChatHandler {
 			}
 			
 		}
-//		String message_ending = "[$=" + sessionUid.toString()  + "]";
-//		instance.getNetworkHandler().sendChatMessage(message_ending);
-//		MinecraftClient.getInstance().getNetworkHandler().sendPacket(new ChatMessageC2SPacket(message_ending));
-//		progress.setCurrent(total);
-//		try {
-//			progress.call();
-//		} catch (Exception e) {}
+		progress.finish();
 	}
 	
 	public static void cutSend(String message,int length){
@@ -244,7 +237,6 @@ public class ChatHandler {
 			// TODO Encrypt the message and send it to the specified person
 			boolean playerFound = false;
 			MinecraftClient instance = MinecraftClient.getInstance();
-			// instance.inGameHud.getChatHud().addToMessageHistory(message);
 			if(!PqEnc.privLoaded) { 
 				instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.private_key_not_available_yet"));
 				
@@ -278,18 +270,18 @@ public class ChatHandler {
 				
 			} catch (IOException e) {
 				e.printStackTrace();
-				instance.inGameHud.getChatHud().addMessage(Text.literal(e.toString()));
+				if(Configuration.message_detail)instance.inGameHud.getChatHud().addMessage(Text.literal(e.toString()));
 				return false;
 				
 			}
 
-			// Send on batch
+
 			if(playerFound) {
-				instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.found").append(Text.literal(" "+playerName+" ")).append(Text.translatable("general.jn233_mcchat_enc.public_key")));
+				if(Configuration.message_detail)instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.found").append(Text.literal(" "+playerName+" ")).append(Text.translatable("general.jn233_mcchat_enc.public_key")));
 				CutSendImplements cutSend = new CutSendImplements();
-				cutSend.setCutLimit(ChatEnc.configurationScreen.cut_limit);
+				cutSend.setCutLimit(Configuration.cut_limit);
 				cutSend.setMessage(message);
-				cutSend.setDelay(ChatEnc.configurationScreen.message_delay);
+				cutSend.setDelay(Configuration.message_delay);
 				(new Thread(cutSend)).start();
 			}else {
 				instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.notfound").append(Text.literal(" "+playerName+" ")).append(Text.translatable("general.jn233_mcchat_enc.public_key")));
