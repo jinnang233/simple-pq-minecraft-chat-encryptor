@@ -64,7 +64,7 @@ public class ChatEnc implements ModInitializer {
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			while(keyBinding.wasPressed()) {
 				MinecraftClient instance = MinecraftClient.getInstance();
-				MinecraftClient.getInstance().setScreen(ChatEnc.configurationScreen.makeScreen(instance.currentScreen));;
+				instance.setScreen(ChatEnc.configurationScreen.makeScreen(instance.currentScreen));;
 				
 			}
 		});
