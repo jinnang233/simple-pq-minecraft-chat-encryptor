@@ -181,7 +181,7 @@ public class PKStorageGlass {
 		File pkdir = new File(dir.getAbsolutePath(),pkDirectoryName);
 		String postfix;
 		if(is_signature) {
-			postfix=".ssk";
+			postfix=".ssk"; 
 		}else {
 			postfix=".sk";
 		}

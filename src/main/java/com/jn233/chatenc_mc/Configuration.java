@@ -1,11 +1,5 @@
 package com.jn233.chatenc_mc;
 import eu.midnightdust.lib.config.MidnightConfig;
-import net.minecraft.client.MinecraftClient;
-
-import java.util.List;
-
-
-
 public class Configuration extends MidnightConfig {
 	
 	@Entry(category = "general") public static boolean encrypted_echo = false;
@@ -15,12 +9,26 @@ public class Configuration extends MidnightConfig {
 	@Entry(category = "message_sending",min=1,max=242,isSlider=true) public static int cut_limit = 230;
 	@Entry(category = "message_receiving") public static boolean silly_match = false;
 	@Entry(category = "message_receiving") public static String chat_regex = "\\<(.*)\\>(.*)";
+	public enum CMCEParamEnum{
+		mceliece348864r3,
+		mceliece348864fr3,
+		mceliece460896r3,
+		mceliece460896fr3,
+		mceliece6688128r3,
+		mceliece6688128fr3,
+		mceliece6960119r3,
+		mceliece6960119fr3,
+		mceliece8192128r3,
+		mceliece8192128fr3
+	}
+	public enum FalconParamEnum {
+		Falcon_512,
+		Falcon_1024
+	}
+	@Entry(category = "general",isSlider = true) public static CMCEParamEnum kem_param = CMCEParamEnum.mceliece8192128r3;
+	@Entry(category = "general",isSlider = true) public static FalconParamEnum sig_param = FalconParamEnum.Falcon_512;
 	
-	
-	public static String kem_alg = PQParser.param.getName();
-	//@Comment(category = "text") 
-	public static String sig_alg = PQParser.sig_param;
 	//@Comment(category = "text")
-	public static List<String> pkList = PKStorageGlass.getAllPlayerNames(MinecraftClient.getInstance());
+	//public static List<String> pkList = PKStorageGlass.getAllPlayerNames(MinecraftClient.getInstance());
 	
 }

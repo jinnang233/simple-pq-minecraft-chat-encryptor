@@ -102,6 +102,20 @@ public class ChatEnc implements ModInitializer {
 					if(keypair_initialized) ChatHandler.sendEncrypted(encryptor, message, receiver, true,3);
 					return 1;
 				}))))));
+		ClientCommandRegistrationCallback.EVENT.register(
+				(dispatcher, registryAccess)->dispatcher.register(ClientCommandManager.literal(rootCommand)
+				.then(ClientCommandManager.literal("showalgs")
+				.executes(context -> {
+					MinecraftClient instance = MinecraftClient.getInstance();
+					instance.inGameHud.getChatHud().addMessage(
+							Text.translatable("jn233_mcchat_enc.midnightconfig.kem_alg").append(":")
+							.append(PQParser.param.getName()));
+					instance.inGameHud.getChatHud().addMessage(
+							Text.translatable("jn233_mcchat_enc.midnightconfig.sig_alg").append(":")
+							.append(PQParser.sig_param));
+					return 1;
+				}))));
+		
 		ClientReceiveMessageEvents.ALLOW_CHAT.register(
 				(message, signedMessage, sender, params, receptionTimestamp)->{
 					if(keypair_initialized && (!Configuration.silly_match)) return chat_handler.chatProcessWithSession(message.getString(), sender.getName());

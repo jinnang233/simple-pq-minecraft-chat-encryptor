@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Field;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -18,6 +19,9 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.SecretWithEncapsulation;
 import org.bouncycastle.pqc.crypto.cmce.CMCEKEMExtractor;
@@ -27,13 +31,14 @@ import org.bouncycastle.pqc.crypto.cmce.CMCEKeyPairGenerator;
 import org.bouncycastle.pqc.crypto.cmce.CMCEParameters;
 import org.bouncycastle.pqc.crypto.cmce.CMCEPrivateKeyParameters;
 import org.bouncycastle.pqc.crypto.cmce.CMCEPublicKeyParameters;
+import org.bouncycastle.pqc.crypto.falcon.FalconParameters;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 
 
 
 public class PQParser {
-	public static final CMCEParameters param = CMCEParameters.mceliece8192128r3;
-	public static final String sig_param = "Falcon-512";
+	public static CMCEParameters param = null;
+	public static String sig_param = null;
 	
 	
 	
@@ -44,8 +49,43 @@ public class PQParser {
 	@SuppressWarnings("unused")
 	private KeyFactory sigs_factory ;
 	private KeyPairGenerator sigs_kpgen;
-	
+	public static HashMap<String,CMCEParameters> getKEMParams() {
+		HashMap<String,CMCEParameters> params = new HashMap<String,CMCEParameters>();
+		Class<CMCEParameters> param_class = CMCEParameters.class;
+		Field[] fields = param_class.getFields();
+		for(Field f: fields) {
+			if(f.getName().startsWith("mceliece")) {
+				try {
+					params.put(f.getName(), (CMCEParameters) f.get(null));
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return params;
+	}
+	public static ArrayList<String> getSIGParams() {
+		ArrayList<String> params = new ArrayList<String>();
+		Class<FalconParameters> param_class = FalconParameters.class;
+		Field[] fields = param_class.getFields();
+		for(Field f: fields) {
+			if(f.getName().startsWith("falcon_")) {
+				params.add(f.getName().replace("_", "-").replace("falcon", "Falcon"));
+			}
+		}
+		return params;
+	}
 	public PQParser() {
+		if(param==null) {
+			HashMap<String,CMCEParameters> param_map = PQParser.getKEMParams();
+			PQParser.param=param_map.get(Configuration.kem_param.name());
+		}
+		if(sig_param==null) {
+			PQParser.sig_param = Configuration.sig_param.name().replace("_","-");
+		}
+		
 		
 		this.kem_generator = new CMCEKEMGenerator(sr);
 		this.keypair_generator = new CMCEKeyPairGenerator();
