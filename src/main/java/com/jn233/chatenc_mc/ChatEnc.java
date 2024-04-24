@@ -140,7 +140,7 @@ public class ChatEnc implements ModInitializer {
 					return;
 				}
 				);
-		
+		PKStorageGlass.makeDir(MinecraftClient.getInstance());
 
 	}
 }
