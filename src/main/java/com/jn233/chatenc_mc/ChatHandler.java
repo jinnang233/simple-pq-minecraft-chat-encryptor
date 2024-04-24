@@ -134,7 +134,7 @@ public class ChatHandler {
 				// Try to decrypt using encryptor
 				
 
-				if(chat==null && (!instance.player.getName().getString().equals(sender))) {printFailure();return;}
+				if(chat==null || (!instance.player.getName().getString().equals(sender))) {return;}
 				
 				result=new String(chat);
 				// Show in game
@@ -165,6 +165,7 @@ public class ChatHandler {
 				
 			case 3:
 				chat = encryptor.ss_decrypt(message,sk,instance.player.getName().getString(), sender);
+				if(chat==null || (!instance.player.getName().getString().equals(sender))) {return;}
 				result = new String(chat);
 				postfix="general.jn233_mcchat_enc.nosignature";
 				break;
