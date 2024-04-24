@@ -38,8 +38,8 @@ public class MessageSendingProgress implements Callable<Object> {
 		return null;
 	}
 	public void finish() {
-		MinecraftClient instance = MinecraftClient.getInstance();
-		instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.message_sent"));
+		//MinecraftClient instance = MinecraftClient.getInstance();
+		//if(Configuration.progress_bar)instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.message_sent"));
 	}
 
 }

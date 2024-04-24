@@ -18,6 +18,7 @@
 	"general.jn233_mcchat_enc.config_loaded":"Configuration loaded",
 	"general.jn233_mcchat_enc.config_saved":"Configuration saved",
 	"general.jn233_mcchat_enc.message_sent":"Message sent",
+	"general.jn233_mcchat_enc.message_echo":"You sent an encrypted message",
 	"jn233_mcchat_enc.midnightconfig.title":"Chat encryption settings",
 	"jn233_mcchat_enc.midnightconfig.category.general":"General",
 	"jn233_mcchat_enc.midnightconfig.category.message_sending":"Message sending settings",

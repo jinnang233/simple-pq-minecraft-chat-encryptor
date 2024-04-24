@@ -18,6 +18,7 @@
 	"general.jn233_mcchat_enc.config_loaded":"配置已加载",
 	"general.jn233_mcchat_enc.config_saved":"配置已保存",
 	"general.jn233_mcchat_enc.message_sent":"消息已发送",
+	"general.jn233_mcchat_enc.message_echo":"您发送了一条加密消息",
 	"key.jn233_mcchat_enc.settings":"设置",
 	"category.jn233_mcchat_enc.chatkeybind":"PQChatEnc",
 	"jn233_mcchat_enc.midnightconfig.title":"聊天加密设置",

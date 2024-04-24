@@ -217,7 +217,8 @@ public class ChatHandler {
 				progress.call();
 			} catch (Exception e) {}
 			try {
-				Thread.sleep(message_delay);
+				if(i+length<message.length()) 
+					Thread.sleep(message_delay);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -242,6 +243,12 @@ public class ChatHandler {
 				
 				return false;
 				}
+			
+			Text message_echo = Text.translatable("general.jn233_mcchat_enc.message_echo")
+					.append(" -> ")
+					.append(playerName)
+					.append(": ")
+					.append(message);
 			
 			try {
 				byte[] pk = PKStorageGlass.get(instance, playerName);
@@ -282,7 +289,21 @@ public class ChatHandler {
 				cutSend.setCutLimit(Configuration.cut_limit);
 				cutSend.setMessage(message);
 				cutSend.setDelay(Configuration.message_delay);
-				(new Thread(cutSend)).start();
+				
+				cutSend.setCallback(
+						()->{
+							if(type!=2)
+								instance.inGameHud.getChatHud().addMessage(message_echo);
+							return;
+						}
+						);
+				cutSend.onSending((send_message,cutLimit,delay)->{
+					cutSend(send_message,cutLimit,delay);
+					return;
+				});
+				Thread message_sending_thread =  new Thread(cutSend);
+				message_sending_thread.start();
+				
 			}else {
 				instance.inGameHud.getChatHud().addMessage(Text.translatable("general.jn233_mcchat_enc.notfound").append(Text.literal(" "+playerName+" ")).append(Text.translatable("general.jn233_mcchat_enc.public_key")));
 			}
