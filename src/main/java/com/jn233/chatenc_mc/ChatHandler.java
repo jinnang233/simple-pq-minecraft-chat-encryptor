@@ -125,6 +125,7 @@ public class ChatHandler {
 				if(datapack.signature.length!=0) {
 					byte[] sig_pk = PKStorageGlass.get(instance, sender, true);
 					sigdata = encryptor.decrypt_and_verify(message, sk, instance.player.getName().getString(), sig_pk);
+					if(sigdata==null) {return;}
 					chat=sigdata.data;
 				}else {
 					chat = encryptor.simple_KEM_decrypt(message, sk, instance.player.getName().getString());
@@ -134,7 +135,7 @@ public class ChatHandler {
 				// Try to decrypt using encryptor
 				
 
-				if(chat==null || (!instance.player.getName().getString().equals(sender))) {return;}
+				if(chat==null) {return;}
 				
 				result=new String(chat);
 				// Show in game
@@ -165,7 +166,7 @@ public class ChatHandler {
 				
 			case 3:
 				chat = encryptor.ss_decrypt(message,sk,instance.player.getName().getString(), sender);
-				if(chat==null || (!instance.player.getName().getString().equals(sender))) {return;}
+				if(chat==null) {return;}
 				result = new String(chat);
 				postfix="general.jn233_mcchat_enc.nosignature";
 				break;
