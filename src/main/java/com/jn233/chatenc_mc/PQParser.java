@@ -142,6 +142,10 @@ public class PQParser {
 		KeyFactory sig_factory;
 		PublicKey public_key;
 		Signature verifier;
+
+		if(signature==null) {return false;}
+		if(publicKey==null) {return false;}
+		if(message==null) {return false;}
 		X509EncodedKeySpec pk_spec = new X509EncodedKeySpec(publicKey);
 		try {
 			sig_factory = KeyFactory.getInstance(sig_param,new BouncyCastlePQCProvider());

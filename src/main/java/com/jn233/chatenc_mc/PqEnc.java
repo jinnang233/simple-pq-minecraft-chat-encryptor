@@ -25,7 +25,7 @@ public class PqEnc {
 	public static HashMap<String,encryptionDataPack> ss_map_recv = new HashMap<String,encryptionDataPack>();
 	public static boolean privLoaded=false;
 	public void makesure() {
-		
+		new PQParser();
 		MinecraftClient instance = MinecraftClient.getInstance();
 		if(PKStorageGlass.fetch(instance)==null) {
 			AsymmetricCipherKeyPair keypair = (new PQParser()).generateKeyPair();
